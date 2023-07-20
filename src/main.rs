@@ -123,7 +123,9 @@ fn main() {
             }
             for (region_coord, chunks) in deleted_chunk_map {
                 if let Some(mut region) = world.region(region_coord)? {
-                    for chunk_coord in chunks {
+                    for &chunk_coord in
+                        chunks.intersection(&Result::<BTreeSet<_>, _>::from_iter(region.chunks())?)
+                    {
                         region.remove_chunk(chunk_coord)?;
                     }
                 }

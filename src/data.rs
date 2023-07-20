@@ -273,9 +273,10 @@ impl Region {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(self.path = %self.path, self.coord = %self.coord, absolute_coord = %absolute_coord))]
+    #[tracing::instrument(skip_all, fields(self.path = %self.path, self.coord = %self.coord, absolute_coord = %absolute_coord, relative_coord))]
     pub fn remove_chunk(&mut self, absolute_coord: Coord<i64>) {
         let relative_coord = make_relative(self.coord, absolute_coord)?;
+        tracing::Span::current().record("relative_coord", relative_coord.to_string());
         self.region
             .remove_chunk(relative_coord.x, relative_coord.z)
             .context("removing chunk")?;
