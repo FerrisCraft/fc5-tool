@@ -1,0 +1,18 @@
+[package]
+name = "fc5-tool"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+camino = "1.1.6"
+clap = { version = "4.3.15", features = ["derive"] }
+color-eyre = "0.6.2"
+culpa = "1.0.1"
+eyre = "0.6.8"
+fastanvil = { version = "0.28.0", default-features = false }
+fastnbt = "2.4.4"
+flate2 = "1.0.26"
+rand = "0.8.5"
+tracing = "0.1.37"
+tracing-error = "0.2.0"
+tracing-subscriber = "0.3.17"
