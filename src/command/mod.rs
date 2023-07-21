@@ -6,6 +6,7 @@ mod force_blending;
 mod print_blending;
 mod randomize_seed;
 mod remove_chunks;
+mod rescue_players;
 
 #[derive(Debug, clap::Parser)]
 pub(super) enum Command {
@@ -14,6 +15,7 @@ pub(super) enum Command {
     ForceBlending(force_blending::Command),
     ForceBlendingWithHeights(force_blending::WithHeights),
     PrintBlendingHeightMaps(print_blending::Command),
+    RescueOutOfBoundsPlayers(rescue_players::Command),
 }
 
 impl Command {
@@ -25,6 +27,7 @@ impl Command {
             Command::ForceBlending(cmd) => cmd.run(world)?,
             Command::ForceBlendingWithHeights(cmd) => cmd.run(world)?,
             Command::PrintBlendingHeightMaps(cmd) => cmd.run(world)?,
+            Command::RescueOutOfBoundsPlayers(cmd) => cmd.run(world)?,
         }
     }
 }

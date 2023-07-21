@@ -14,7 +14,7 @@ impl Command {
         let chunk = world
             .region_for_chunk(self.coord)?
             .context("missing region")?
-            .read_chunk(self.coord)?;
+            .chunk(self.coord)?;
         let Some(fastnbt::Value::Compound(blending)) = chunk.data.get("blending_data") else {
             bail!("bad blending_data")
         };

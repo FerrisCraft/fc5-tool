@@ -48,7 +48,7 @@ impl Region {
 
     #[culpa::throws]
     #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, chunk.absolute_coord = %absolute_coord))]
-    pub(crate) fn read_chunk(&mut self, absolute_coord: Coord<i64>) -> Chunk {
+    pub(crate) fn chunk(&mut self, absolute_coord: Coord<i64>) -> Chunk {
         let relative_coord = make_relative(self.coord, absolute_coord)?;
         let data = self
             .region
@@ -75,7 +75,7 @@ impl Region {
         absolute_coord: Coord<i64>,
         mut f: impl FnMut(Chunk) -> Result<Chunk>,
     ) {
-        let chunk = f(self.read_chunk(absolute_coord)?)?;
+        let chunk = f(self.chunk(absolute_coord)?)?;
         self.save_chunk(&chunk)?;
     }
 

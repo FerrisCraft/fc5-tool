@@ -1,28 +1,12 @@
-use camino::{Utf8Path, Utf8PathBuf};
-use eyre::{Context, Error, Result};
+use camino::Utf8PathBuf;
+use eyre::{Context, ContextCompat, Error, Result};
+use uuid::Uuid;
 
-use super::{Compound, Coord, Region};
+use super::{read_compound, write_compound, Compound, Coord, Region};
 
 #[derive(Debug)]
 pub(crate) struct World {
     pub(crate) directory: Utf8PathBuf,
-}
-
-#[culpa::throws]
-#[tracing::instrument]
-fn read_level(path: &Utf8Path) -> Compound {
-    use std::io::Read;
-    let mut data = Vec::with_capacity(4096);
-    flate2::read::GzDecoder::new(std::fs::File::open(path)?).read_to_end(&mut data)?;
-    fastnbt::from_bytes(&data)?
-}
-
-#[culpa::throws]
-#[tracing::instrument(skip(value))]
-fn write_level(path: &Utf8Path, value: Compound) {
-    use std::io::Write;
-    flate2::write::GzEncoder::new(std::fs::File::create(path)?, flate2::Compression::best())
-        .write_all(&fastnbt::to_bytes(&value)?)?;
 }
 
 impl World {
@@ -73,6 +57,51 @@ impl World {
     #[tracing::instrument(skip_all, fields(world.directory = %self.directory))]
     pub(crate) fn update_level(&self, mut f: impl FnMut(Compound) -> Result<Compound>) {
         let path = self.directory.join("level.dat");
-        write_level(&path, f(read_level(&path)?)?)?;
+        write_compound(&path, f(read_compound(&path)?)?)?;
+    }
+
+    #[culpa::throws]
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, uuid = %uuid))]
+    pub(crate) fn player(&self, uuid: Uuid) -> Compound {
+        read_compound(
+            &self
+                .directory
+                .join("playerdata")
+                .join(&format!("{uuid}.dat")),
+        )?
+    }
+
+    #[culpa::throws]
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, uuid = %uuid))]
+    pub(crate) fn save_player(&self, uuid: Uuid, data: Compound) {
+        write_compound(
+            &self
+                .directory
+                .join("playerdata")
+                .join(&format!("{uuid}.dat")),
+            data,
+        )?;
+    }
+
+    #[culpa::throws]
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory))]
+    pub(crate) fn players(&self) -> impl Iterator<Item = Result<Uuid>> {
+        std::fs::read_dir(self.directory.join("playerdata"))
+            .context("reading region dir")?
+            .filter_map(|entry| {
+                entry
+                    .context("reading dir entry")
+                    .and_then(|entry| {
+                        let filename = entry.file_name();
+                        let filename = filename.to_str().context("non utf-8 filename")?;
+                        let _guard =
+                            tracing::info_span!("parsing filename", filename = %filename).entered();
+                        let Some((uuid, "dat")) = filename.split_once(".") else {
+                            return Ok(None);
+                        };
+                        Ok(Some(uuid.parse()?))
+                    })
+                    .transpose()
+            })
     }
 }

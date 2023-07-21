@@ -64,6 +64,13 @@ impl Coord<i64> {
             z: self.z >> 5,
         }
     }
+
+    pub(crate) fn block_to_chunk(self) -> Self {
+        Self {
+            x: self.x >> 4,
+            z: self.z >> 4,
+        }
+    }
 }
 
 impl<T> Coord<T> {
