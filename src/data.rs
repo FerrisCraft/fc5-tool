@@ -1,5 +1,6 @@
 use camino::{Utf8Path, Utf8PathBuf};
 use eyre::{bail, ensure, Context, ContextCompat, Error, Result};
+use itertools::Itertools;
 use std::{
     fmt::{Debug, Display},
     str::FromStr,
@@ -268,7 +269,7 @@ impl Region {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, absolute_coord = %absolute_coord))]
+    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, chunk.absolute_coord = %absolute_coord))]
     pub fn update_chunk(
         &mut self,
         absolute_coord: Coord<i64>,
@@ -279,7 +280,7 @@ impl Region {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, absolute_coord = %absolute_coord, relative_coord))]
+    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, chunk.absolute_coord = %absolute_coord, relative_coord))]
     pub fn remove_chunk(&mut self, absolute_coord: Coord<i64>) {
         let relative_coord = make_relative(self.coord, absolute_coord)?;
         tracing::Span::current().record("relative_coord", relative_coord.to_string());
@@ -306,6 +307,36 @@ pub struct Chunk {
     pub relative_coord: Coord<usize>,
     pub absolute_coord: Coord<i64>,
     pub data: Compound,
+}
+
+// Calculates average heights around the border of the heightmap, starting in the top-right winding
+// widdershins:
+//
+//        3 2 1 0
+//      4         f
+//      5         e
+//      6         d
+//      7         c
+//        8 9 a b
+fn calculate_blending_heights(heightmap: [[i16; 16]; 16], offset: f64) -> [f64; 16] {
+    fn average(iter: impl Iterator<Item = i16>) -> impl Iterator<Item = f64> {
+        let chunks = iter.chunks(4);
+        let mut values = chunks.into_iter().map(|v| v.sum::<i16>() as f64 / 4.0);
+        [(); 4].map(|()| values.next().unwrap()).into_iter()
+    }
+    let mut values = average(heightmap[0].into_iter().rev())
+        .chain(average(heightmap.iter().map(|&[v, ..]| v)))
+        .chain(average(heightmap.iter().map(|&[.., v]| v).rev()))
+        .chain(average(heightmap[15].into_iter()));
+    [(); 16].map(|()| values.next().unwrap().floor() + offset)
+}
+
+#[derive(Copy, Clone, Debug)]
+pub enum Direction {
+    North,
+    East,
+    West,
+    South,
 }
 
 impl Chunk {
@@ -341,21 +372,60 @@ impl Chunk {
 
     #[culpa::throws]
     #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.absolute_coord))]
-    pub fn height_maps(&self) -> HeightMaps {
+    pub fn force_blending_with_heights(mut self, directions: [Direction; 2], offset: f64) -> Self {
+        // ensure!(self.data.get("Status") == Some(&fastnbt::Value::String("minecraft:full".into())), "chunk is not fully generated");
+        let heights = {
+            let heights = calculate_blending_heights(self.heightmaps()?.ocean_floor()?, offset);
+            let mut base = [f64::MAX; 16];
+            for direction in directions {
+                match direction {
+                    Direction::North => {
+                        base[0..4].copy_from_slice(&heights[0..4]);
+                    }
+                    Direction::West => {
+                        // yes, don't ask me why
+                        base[3..7].copy_from_slice(&heights[4..8]);
+                    }
+                    Direction::South => {
+                        // yes, don't ask me why
+                        base[7..11].copy_from_slice(&heights[8..12]);
+                        base[11] = heights[11];
+                    }
+                    Direction::East => {
+                        base[12..16].copy_from_slice(&heights[12..16]);
+                    }
+                };
+            }
+            base
+        };
+        self.data.insert(
+            "blending_data".into(),
+            fastnbt::nbt!({
+                "min_section": -4,
+                "max_section": 20,
+                "heights": heights,
+            }),
+        );
+        self
+    }
+
+    #[culpa::throws]
+    #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.absolute_coord))]
+    pub fn heightmaps(&self) -> Heightmaps {
         let Some(fastnbt::Value::Compound(data)) = self.data.get("Heightmaps") else {
             bail!("bad Heightmaps")
         };
-        HeightMaps { chunk: self, data }
+        Heightmaps { chunk: self, data }
     }
 }
 
 #[derive(Debug)]
-pub struct HeightMaps<'a> {
+pub struct Heightmaps<'a> {
     chunk: &'a Chunk,
     data: &'a Compound,
 }
 
-impl HeightMaps<'_> {
+impl Heightmaps<'_> {
     #[culpa::throws]
     #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.chunk.absolute_coord))]
     pub fn ocean_floor(&self) -> [[i16; 16]; 16] {

@@ -8,7 +8,11 @@ use tracing_subscriber::layer::SubscriberExt;
 
 mod data;
 
-use data::{Coord, World};
+use data::{
+    Coord,
+    Direction::{East, North, South, West},
+    World,
+};
 
 #[derive(Debug, clap::Parser)]
 struct Args {
@@ -37,6 +41,15 @@ enum Command {
     ForceBlending {
         #[command(subcommand)]
         target: ForceBlendingTarget,
+    },
+
+    ForceBlendingWithHeights {
+        #[command(subcommand)]
+        target: ForceBlendingTarget,
+
+        /// Offset to apply to calculated heights
+        #[arg(allow_negative_numbers(true))]
+        offset: f64,
     },
 
     PrintBlendingHeightMaps {
@@ -173,6 +186,39 @@ fn main() {
             }
         }
 
+        Command::ForceBlendingWithHeights { target, offset } => {
+            let coords = match target {
+                ForceBlendingTarget::SquareBorder { tl, br } => Vec::from_iter(
+                    std::iter::once((tl, [North, West]))
+                        .chain(std::iter::once((Coord { x: br.x, z: tl.z }, [North, East])))
+                        .chain(std::iter::once((Coord { x: tl.x, z: br.z }, [South, West])))
+                        .chain(std::iter::once((br, [South, East])))
+                        .chain(((tl.x + 1)..=(br.x - 1)).flat_map(|x| {
+                            [
+                                (Coord { x, ..tl }, [North, South]),
+                                (Coord { x, ..br }, [North, South]),
+                            ]
+                        }))
+                        .chain(((tl.z + 1)..=(br.z - 1)).flat_map(|z| {
+                            [
+                                (Coord { z, ..tl }, [East, West]),
+                                (Coord { z, ..br }, [East, West]),
+                            ]
+                        })),
+                ),
+                _ => bail!("unsupported target with heights"),
+            };
+
+            for (coord, directions) in coords {
+                world
+                    .region_for_chunk(coord)?
+                    .context("missing region")?
+                    .update_chunk(coord, |chunk| {
+                        Ok(chunk.force_blending_with_heights(directions, offset)?)
+                    })?
+            }
+        }
+
         Command::PrintBlendingHeightMaps { coord } => {
             let chunk = world
                 .region_for_chunk(coord)?
@@ -194,7 +240,7 @@ fn main() {
             }
             println!();
             println!();
-            for row in chunk.height_maps()?.ocean_floor()? {
+            for row in chunk.heightmaps()?.ocean_floor()? {
                 for cell in row {
                     print!("{:3} ", cell);
                 }
