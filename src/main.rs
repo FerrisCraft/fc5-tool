@@ -14,6 +14,8 @@ use data::{Coord, World};
 struct Args {
     /// Path to world directory
     world: Utf8PathBuf,
+    #[arg(long, short)]
+    debug: bool,
     #[command(subcommand)]
     command: Command,
 }
@@ -35,6 +37,11 @@ enum Command {
     ForceBlending {
         #[command(subcommand)]
         target: ForceBlendingTarget,
+    },
+
+    PrintBlendingHeightMaps {
+        #[arg(allow_hyphen_values(true))]
+        coord: Coord<i64>,
     },
 }
 
@@ -61,16 +68,18 @@ enum ForceBlendingTarget {
 fn main() {
     color_eyre::install()?;
 
-    tracing::subscriber::set_global_default(
-        tracing_subscriber::fmt()
-            .with_writer(std::io::stderr)
-            // .with_span_events(tracing_subscriber::fmt::format::FmtSpan::ENTER)
-            .compact()
-            .finish()
-            .with(tracing_error::ErrorLayer::default()),
-    )?;
-
     let args = Args::parse();
+
+    tracing::subscriber::set_global_default({
+        let mut fmt = tracing_subscriber::fmt()
+            .with_writer(std::io::stderr)
+            .compact();
+        if args.debug {
+            fmt = fmt.with_span_events(tracing_subscriber::fmt::format::FmtSpan::ENTER);
+        }
+        fmt.finish().with(tracing_error::ErrorLayer::default())
+    })?;
+
     let world = World::new(args.world);
 
     match args.command {
@@ -161,6 +170,35 @@ fn main() {
                     .region_for_chunk(coord)?
                     .context("missing region")?
                     .update_chunk(coord, |chunk| Ok(chunk.force_blending()?))?
+            }
+        }
+
+        Command::PrintBlendingHeightMaps { coord } => {
+            let chunk = world
+                .region_for_chunk(coord)?
+                .context("missing region")?
+                .read_chunk(coord)?;
+            let Some(fastnbt::Value::Compound(blending)) = chunk.data.get("blending_data") else {
+                bail!("bad blending_data")
+            };
+            let Some(fastnbt::Value::List(heights)) = blending.get("heights") else {
+                bail!("bad heights")
+            };
+            let heights = Vec::from_iter(heights.iter().map(|height| height.as_f64().unwrap()));
+            for height in heights {
+                if height == f64::MAX {
+                    print!("--- ");
+                } else {
+                    print!("{:3} ", height);
+                }
+            }
+            println!();
+            println!();
+            for row in chunk.height_maps()?.ocean_floor()? {
+                for cell in row {
+                    print!("{:3} ", cell);
+                }
+                println!();
             }
         }
     }

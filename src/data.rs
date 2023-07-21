@@ -1,5 +1,5 @@
 use camino::{Utf8Path, Utf8PathBuf};
-use eyre::{ensure, Context, ContextCompat, Error, Result};
+use eyre::{bail, ensure, Context, ContextCompat, Error, Result};
 use std::{
     fmt::{Debug, Display},
     str::FromStr,
@@ -145,7 +145,7 @@ impl World {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(self.directory = %self.directory, coord = %coord))]
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, region.coord = %coord))]
     pub fn region(&self, coord: Coord<i64>) -> Option<Region> {
         let Coord { x, z } = coord;
         let path = self.directory.join("region").join(format!("r.{x}.{z}.mca"));
@@ -153,7 +153,7 @@ impl World {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(self.directory = %self.directory))]
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory))]
     pub fn regions(&self) -> impl Iterator<Item = Result<Region>> {
         std::fs::read_dir(self.directory.join("region"))
             .context("reading region dir")?
@@ -166,7 +166,7 @@ impl World {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(self.directory = %self.directory, coord = %coord))]
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, region.coord = %coord))]
     pub fn remove_region(&self, coord: Coord<i64>) {
         let Coord { x, z } = coord;
         let path = self.directory.join("region").join(format!("r.{x}.{z}.mca"));
@@ -178,16 +178,16 @@ impl World {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(self.directory = %self.directory, coord = %coord))]
-    pub fn region_for_chunk(&self, coord: Coord<i64>) -> Option<Region> {
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, chunk.absolute_coord = %absolute_coord))]
+    pub fn region_for_chunk(&self, absolute_coord: Coord<i64>) -> Option<Region> {
         self.region(Coord {
-            x: coord.x >> 5,
-            z: coord.z >> 5,
+            x: absolute_coord.x >> 5,
+            z: absolute_coord.z >> 5,
         })?
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(self.directory = %self.directory))]
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory))]
     pub fn update_level(&self, mut f: impl FnMut(Compound) -> Result<Compound>) {
         let path = self.directory.join("level.dat");
         write_level(&path, f(read_level(&path)?)?)?;
@@ -211,13 +211,13 @@ impl Debug for Region {
 }
 
 #[culpa::throws]
-#[tracing::instrument(skip_all, fields(region_coord = %region_coord, absolute_chunk_coord = %absolute_chunk_coord))]
+#[tracing::instrument(skip_all, fields(region.coord = %region_coord, chunk.absolute_coord = %absolute_chunk_coord))]
 fn make_relative(region_coord: Coord<i64>, absolute_chunk_coord: Coord<i64>) -> Coord<usize> {
     Coord::<usize>::try_from(absolute_chunk_coord.checked_sub(region_coord.checked_mul(32)?)?)?
 }
 
 #[culpa::throws]
-#[tracing::instrument(skip_all, fields(region_cord = %region_coord, relative_chunk_coord = %relative_chunk_coord))]
+#[tracing::instrument(skip_all, fields(region.coord = %region_coord, chunk.relative_coord = %relative_chunk_coord))]
 fn make_absolute(region_coord: Coord<i64>, relative_chunk_coord: Coord<usize>) -> Coord<i64> {
     Coord::<i64>::try_from(relative_chunk_coord)?.checked_add(region_coord.checked_mul(32)?)?
 }
@@ -246,7 +246,19 @@ impl Region {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(self.path = %self.path, self.coord = %self.coord, chunk.relative_coord = %chunk.relative_coord))]
+    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, chunk.absolute_coord = %absolute_coord))]
+    pub fn read_chunk(&mut self, absolute_coord: Coord<i64>) -> Chunk {
+        let relative_coord = make_relative(self.coord, absolute_coord)?;
+        let data = self
+            .region
+            .read_chunk(relative_coord.x, relative_coord.z)
+            .context("reading chunk")?
+            .context("chunk not in region file")?;
+        Chunk::parse(relative_coord, absolute_coord, &data)?
+    }
+
+    #[culpa::throws]
+    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, chunk.relative_coord = %chunk.relative_coord))]
     fn save_chunk(&mut self, chunk: &Chunk) {
         self.region.write_chunk(
             chunk.relative_coord.x,
@@ -256,24 +268,18 @@ impl Region {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(self.path = %self.path, self.coord = %self.coord, absolute_coord = %absolute_coord))]
+    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, absolute_coord = %absolute_coord))]
     pub fn update_chunk(
         &mut self,
         absolute_coord: Coord<i64>,
         mut f: impl FnMut(Chunk) -> Result<Chunk>,
     ) {
-        let relative_coord = make_relative(self.coord, absolute_coord)?;
-        let data = self
-            .region
-            .read_chunk(relative_coord.x, relative_coord.z)
-            .context("reading chunk")?
-            .context("chunk not in region file")?;
-        let chunk = Chunk::parse(relative_coord, absolute_coord, &data)?;
-        self.save_chunk(&f(chunk)?)?;
+        let chunk = f(self.read_chunk(absolute_coord)?)?;
+        self.save_chunk(&chunk)?;
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(self.path = %self.path, self.coord = %self.coord, absolute_coord = %absolute_coord, relative_coord))]
+    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, absolute_coord = %absolute_coord, relative_coord))]
     pub fn remove_chunk(&mut self, absolute_coord: Coord<i64>) {
         let relative_coord = make_relative(self.coord, absolute_coord)?;
         tracing::Span::current().record("relative_coord", relative_coord.to_string());
@@ -282,7 +288,7 @@ impl Region {
             .context("removing chunk")?;
     }
 
-    #[tracing::instrument(skip_all, fields(self.path = %self.path, self.coord = %self.coord))]
+    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord))]
     pub fn chunks(&mut self) -> impl Iterator<Item = Result<Coord<i64>>> + '_ {
         self.region.iter().map(|chunk| {
             let chunk = chunk.context("reading chunk")?;
@@ -299,12 +305,12 @@ impl Region {
 pub struct Chunk {
     pub relative_coord: Coord<usize>,
     pub absolute_coord: Coord<i64>,
-    data: Compound,
+    pub data: Compound,
 }
 
 impl Chunk {
     #[culpa::throws]
-    #[tracing::instrument(skip(data), fields(relative_coord = %relative_coord, absolute_coord = %absolute_coord))]
+    #[tracing::instrument(skip(data), fields(chunk.relative_coord = %relative_coord, chunk.absolute_coord = %absolute_coord))]
     fn parse(relative_coord: Coord<usize>, absolute_coord: Coord<i64>, data: &[u8]) -> Self {
         Self {
             relative_coord,
@@ -314,17 +320,15 @@ impl Chunk {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip(self), fields(self.relative_coord = %self.relative_coord))]
+    #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.absolute_coord))]
     fn serialize(&self) -> Vec<u8> {
         fastnbt::to_bytes(&self.data)?
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip(self), fields(self.relative_coord = %self.relative_coord))]
+    #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.absolute_coord))]
     pub fn force_blending(mut self) -> Self {
         // ensure!(self.data.get("Status") == Some(&fastnbt::Value::String("minecraft:full".into())), "chunk is not fully generated");
-        self.data.remove("Heightmaps");
-        self.data.remove("isLightOn");
         self.data.insert(
             "blending_data".into(),
             fastnbt::nbt!({
@@ -333,5 +337,38 @@ impl Chunk {
             }),
         );
         self
+    }
+
+    #[culpa::throws]
+    #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.absolute_coord))]
+    pub fn height_maps(&self) -> HeightMaps {
+        let Some(fastnbt::Value::Compound(data)) = self.data.get("Heightmaps") else {
+            bail!("bad Heightmaps")
+        };
+        HeightMaps { chunk: self, data }
+    }
+}
+
+#[derive(Debug)]
+pub struct HeightMaps<'a> {
+    chunk: &'a Chunk,
+    data: &'a Compound,
+}
+
+impl HeightMaps<'_> {
+    #[culpa::throws]
+    #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.chunk.absolute_coord))]
+    pub fn ocean_floor(&self) -> [[i16; 16]; 16] {
+        let Some(fastnbt::Value::LongArray(data)) = self.data.get("OCEAN_FLOOR") else {
+            bail!("bad OCEAN_FLOOR")
+        };
+        let values = Vec::from_iter(
+            data.iter()
+                .map(|&i| i as u64)
+                .flat_map(|u| (0..7).map(move |j| ((u >> (j * 9)) & 0x1ff) as i16)),
+        );
+        ensure!(values.len() >= 16 * 16, "not enough values in heightmap");
+        let mut values = values.into_iter();
+        [(); 16].map(|()| [(); 16].map(|()| values.next().unwrap() - 64))
     }
 }
