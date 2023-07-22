@@ -11,29 +11,29 @@ use crate::{
 
 #[culpa::throws]
 pub(super) fn run(world: &World, config: &Config) {
-    let PersistentArea::Square {
-        top_left: tl,
-        bottom_right: br,
-    } = config.persistent[0];
-
-    let coords = Vec::from_iter(
-        std::iter::once((tl, [North, West]))
-            .chain(std::iter::once((Coord { x: br.x, z: tl.z }, [North, East])))
-            .chain(std::iter::once((Coord { x: tl.x, z: br.z }, [South, West])))
-            .chain(std::iter::once((br, [South, East])))
-            .chain(((tl.x + 1)..=(br.x - 1)).flat_map(|x| {
-                [
-                    (Coord { x, ..tl }, [North, South]),
-                    (Coord { x, ..br }, [North, South]),
-                ]
-            }))
-            .chain(((tl.z + 1)..=(br.z - 1)).flat_map(|z| {
-                [
-                    (Coord { z, ..tl }, [East, West]),
-                    (Coord { z, ..br }, [East, West]),
-                ]
-            })),
-    );
+    let coords = Vec::from_iter(config.persistent.iter().flat_map(
+        |&PersistentArea::Square {
+             top_left: tl,
+             bottom_right: br,
+         }| {
+            std::iter::once((tl, [North, West]))
+                .chain(std::iter::once((Coord { x: br.x, z: tl.z }, [North, East])))
+                .chain(std::iter::once((Coord { x: tl.x, z: br.z }, [South, West])))
+                .chain(std::iter::once((br, [South, East])))
+                .chain(((tl.x + 1)..=(br.x - 1)).flat_map(move |x| {
+                    [
+                        (Coord { x, ..tl }, [North, South]),
+                        (Coord { x, ..br }, [North, South]),
+                    ]
+                }))
+                .chain(((tl.z + 1)..=(br.z - 1)).flat_map(move |z| {
+                    [
+                        (Coord { z, ..tl }, [East, West]),
+                        (Coord { z, ..br }, [East, West]),
+                    ]
+                }))
+        },
+    ));
 
     let mut forced_chunk_count = 0;
     for (coord, directions) in coords {
