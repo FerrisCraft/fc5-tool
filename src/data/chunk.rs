@@ -63,7 +63,7 @@ impl Chunk {
 
     #[culpa::throws]
     #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.absolute_coord))]
-    pub(crate) fn force_blending(mut self) -> Self {
+    pub(crate) fn force_blending(&mut self) {
         // ensure!(self.data.get("Status") == Some(&fastnbt::Value::String("minecraft:full".into())), "chunk is not fully generated");
         self.data.insert(
             "blending_data".into(),
@@ -72,16 +72,11 @@ impl Chunk {
                 "max_section": 20,
             }),
         );
-        self
     }
 
     #[culpa::throws]
     #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.absolute_coord))]
-    pub(crate) fn force_blending_with_heights(
-        mut self,
-        directions: [Direction; 2],
-        offset: f64,
-    ) -> Self {
+    pub(crate) fn force_blending_with_heights(&mut self, directions: [Direction; 2], offset: f64) {
         // ensure!(self.data.get("Status") == Some(&fastnbt::Value::String("minecraft:full".into())), "chunk is not fully generated");
         let heights = {
             let heights = calculate_blending_heights(self.heightmaps()?.ocean_floor()?, offset);
@@ -115,7 +110,6 @@ impl Chunk {
                 "heights": heights,
             }),
         );
-        self
     }
 
     #[culpa::throws]

@@ -26,8 +26,8 @@ fn read_compound(path: &Utf8Path) -> Compound {
 
 #[culpa::throws]
 #[tracing::instrument(skip(value))]
-fn write_compound(path: &Utf8Path, value: Compound) {
+fn write_compound(path: &Utf8Path, value: &Compound) {
     use std::io::Write;
     flate2::write::GzEncoder::new(std::fs::File::create(path)?, flate2::Compression::best())
-        .write_all(&fastnbt::to_bytes(&value)?)?;
+        .write_all(&fastnbt::to_bytes(value)?)?;
 }

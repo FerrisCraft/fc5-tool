@@ -60,23 +60,12 @@ impl Region {
 
     #[culpa::throws]
     #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, chunk.relative_coord = %chunk.relative_coord))]
-    pub(super) fn save_chunk(&mut self, chunk: &Chunk) {
+    pub(crate) fn save_chunk(&mut self, chunk: &Chunk) {
         self.region.write_chunk(
             chunk.relative_coord.x,
             chunk.relative_coord.z,
             &chunk.serialize()?,
         )?;
-    }
-
-    #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, chunk.absolute_coord = %absolute_coord))]
-    pub(crate) fn update_chunk(
-        &mut self,
-        absolute_coord: Coord<i64>,
-        mut f: impl FnMut(Chunk) -> Result<Chunk>,
-    ) {
-        let chunk = f(self.chunk(absolute_coord)?)?;
-        self.save_chunk(&chunk)?;
     }
 
     #[culpa::throws]

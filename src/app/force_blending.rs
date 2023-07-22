@@ -1,4 +1,4 @@
-use eyre::{ContextCompat, Error};
+use eyre::{Context, ContextCompat, Error};
 
 use crate::{
     config::{Config, PersistentArea},
@@ -35,16 +35,20 @@ pub(super) fn run(world: &World, config: &Config) {
             })),
     );
 
+    let mut forced_chunk_count = 0;
     for (coord, directions) in coords {
-        world
-            .region_for_chunk(coord)?
-            .context("missing region")?
-            .update_chunk(coord, |chunk| {
-                Ok(if let Some(offset) = config.blending.offset {
-                    chunk.force_blending_with_heights(directions, offset)?
-                } else {
-                    chunk.force_blending()?
-                })
-            })?
+        let _guard = tracing::info_span!("blend_chunk", chunk.absolute_coord = %coord).entered();
+        let mut region = world.region_for_chunk(coord)?.context("missing region")?;
+        let mut chunk = region.chunk(coord).context("missing chunk")?;
+        if let Some(offset) = config.blending.offset {
+            chunk.force_blending_with_heights(directions, offset)?;
+        } else {
+            chunk.force_blending()?;
+        }
+        region.save_chunk(&chunk)?;
+        tracing::debug!("Forced blending to {directions:?}");
+        forced_chunk_count += 1;
     }
+
+    tracing::info!("Forced blending on {forced_chunk_count} chunks");
 }

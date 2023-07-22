@@ -95,9 +95,9 @@ impl std::str::FromStr for Config {
 
 #[cfg(test)]
 mod tests {
+    use super::{Blending, Config, Coord, Coord3, OutOfBounds, PersistentArea, Players};
     use eyre::Error;
     use std::str::FromStr;
-    use super::{Config, Coord, Coord3, PersistentArea, Players, Blending, OutOfBounds};
 
     #[test]
     #[culpa::throws]
@@ -105,21 +105,25 @@ mod tests {
         assert_eq!(
             Config::from_str("")?,
             Config {
-                players: Players { out_of_bounds: None },
+                players: Players {
+                    out_of_bounds: None
+                },
                 blending: Blending { offset: None },
                 persistent: vec![],
             }
         );
 
         assert_eq!(
-            Config::from_str("
+            Config::from_str(
+                "
                 [players.out-of-bounds.relocate]
                 safe-position = { x = -20.5, y = 70, z = 21.5 }
 
                 [[persistent]]
                 top-left = { x = -31, z = -31 }
                 bottom-right = { x = 31, z = 31 }
-            ")?,
+            "
+            )?,
             Config {
                 players: Players {
                     out_of_bounds: Some(OutOfBounds::Relocate {

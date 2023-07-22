@@ -27,15 +27,18 @@ pub(super) fn run(world: &World, safe_position: Coord3) {
         .block_to_chunk();
         if let Some(mut region) = world.region_for_chunk(chunk_coord)? {
             if region.chunk(chunk_coord).is_ok() {
-                // Player is still in bounds
+                tracing::info!("Player {uuid} is in bounds");
                 continue;
             }
         }
 
+        let old_position = (*x, *y, *z);
         *x = safe_position.x;
         *y = safe_position.y;
         *z = safe_position.z;
+        let new_position = (*x, *y, *z);
 
-        world.save_player(uuid, player)?;
+        world.save_player(uuid, &player)?;
+        tracing::info!("Rescued player {uuid} from {old_position:?} to {new_position:?}");
     }
 }

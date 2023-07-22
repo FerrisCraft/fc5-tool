@@ -57,9 +57,14 @@ impl World {
 
     #[culpa::throws]
     #[tracing::instrument(skip_all, fields(world.directory = %self.directory))]
-    pub(crate) fn update_level(&self, mut f: impl FnMut(Compound) -> Result<Compound>) {
-        let path = self.directory.join("level.dat");
-        write_compound(&path, f(read_compound(&path)?)?)?;
+    pub(crate) fn level(&self) -> Compound {
+        read_compound(&self.directory.join("level.dat"))?
+    }
+
+    #[culpa::throws]
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory))]
+    pub(crate) fn save_level(&self, data: &Compound) {
+        write_compound(&self.directory.join("level.dat"), data)?;
     }
 
     #[culpa::throws]
@@ -75,7 +80,7 @@ impl World {
 
     #[culpa::throws]
     #[tracing::instrument(skip_all, fields(world.directory = %self.directory, uuid = %uuid))]
-    pub(crate) fn save_player(&self, uuid: Uuid, data: Compound) {
+    pub(crate) fn save_player(&self, uuid: Uuid, data: &Compound) {
         write_compound(
             &self
                 .directory

@@ -12,7 +12,7 @@ pub(crate) struct Coord<T> {
 
 impl Coord<i64> {
     #[culpa::throws]
-    #[tracing::instrument]
+    #[tracing::instrument(level = "debug")]
     pub(super) fn from_region_file(name: &str) -> Self {
         let mut it = name.split('.');
         ensure!(it.next() == Some("r"), "missing `r` segment");
@@ -32,7 +32,7 @@ impl Coord<i64> {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip(self), fields(self = %self))]
+    #[tracing::instrument(level = "trace", skip(self), fields(self = %self))]
     pub(super) fn checked_mul(self, value: i64) -> Self {
         Self {
             x: self.x.checked_mul(value).context("out of range")?,
@@ -41,7 +41,7 @@ impl Coord<i64> {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip(self, other), fields(self = %self, other = %other))]
+    #[tracing::instrument(level = "trace", skip(self, other), fields(self = %self, other = %other))]
     pub(super) fn checked_add(self, other: Self) -> Self {
         Self {
             x: self.x.checked_add(other.x).context("out of range")?,
@@ -50,7 +50,7 @@ impl Coord<i64> {
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip(self, other), fields(self = %self, other = %other))]
+    #[tracing::instrument(level = "trace", skip(self, other), fields(self = %self, other = %other))]
     pub(super) fn checked_sub(self, other: Self) -> Self {
         Self {
             x: self.x.checked_sub(other.x).context("out of range")?,
@@ -75,7 +75,7 @@ impl Coord<i64> {
 
 impl<T> Coord<T> {
     #[culpa::throws]
-    #[tracing::instrument(skip(other), fields(other = %other))]
+    #[tracing::instrument(level = "trace", skip(other), fields(other = %other))]
     fn try_from<U: Display>(other: Coord<U>) -> Self
     where
         T: TryFrom<U>,
@@ -122,7 +122,7 @@ impl<T: Display> Display for Coord<T> {
 }
 
 #[culpa::throws]
-#[tracing::instrument(skip_all, fields(region.coord = %region_coord, chunk.absolute_coord = %absolute_chunk_coord))]
+#[tracing::instrument(level = "debug", skip_all, fields(region.coord = %region_coord, chunk.absolute_coord = %absolute_chunk_coord))]
 pub(super) fn make_relative(
     region_coord: Coord<i64>,
     absolute_chunk_coord: Coord<i64>,
@@ -131,7 +131,7 @@ pub(super) fn make_relative(
 }
 
 #[culpa::throws]
-#[tracing::instrument(skip_all, fields(region.coord = %region_coord, chunk.relative_coord = %relative_chunk_coord))]
+#[tracing::instrument(level = "debug", skip_all, fields(region.coord = %region_coord, chunk.relative_coord = %relative_chunk_coord))]
 pub(super) fn make_absolute(
     region_coord: Coord<i64>,
     relative_chunk_coord: Coord<usize>,

@@ -21,8 +21,12 @@ pub(super) fn run(world: &World, config: &Config) {
     let all_regions =
         Result::<BTreeSet<_>, _>::from_iter(world.regions()?.map(|r| Ok::<_, Error>(r?.coord)))?;
     let deleted_regions = &all_regions - &kept_regions;
+    let mut deleted_region_count = 0;
     for coord in deleted_regions {
+        let _guard = tracing::info_span!("delete_region", region.coord = %coord).entered();
         world.remove_region(coord)?;
+        tracing::debug!("Deleted region {coord}");
+        deleted_region_count += 1;
     }
     let deleted_chunks = ((tlr.x << 5)..(tl.x))
         .flat_map(|x| ((tlr.z << 5)..((brr.z + 1) << 5)).map(move |z| Coord { x, z }))
@@ -46,13 +50,22 @@ pub(super) fn run(world: &World, config: &Config) {
             .or_default()
             .insert(coord);
     }
+    let mut deleted_chunk_count = 0;
     for (region_coord, chunks) in deleted_chunk_map {
+        let _guard =
+            tracing::info_span!("delete_chunks_in_region", region.coord = %region_coord).entered();
         if let Some(mut region) = world.region(region_coord)? {
             for &chunk_coord in
                 chunks.intersection(&Result::<BTreeSet<_>, _>::from_iter(region.chunks())?)
             {
+                let _guard =
+                    tracing::info_span!("delete_chunk", chunk.absolute_coord = %chunk_coord)
+                        .entered();
                 region.remove_chunk(chunk_coord)?;
+                tracing::debug!("Deleted chunk {chunk_coord} from {region_coord}");
+                deleted_chunk_count += 1;
             }
         }
     }
+    tracing::info!("Deleted {deleted_region_count} regions and {deleted_chunk_count} chunks");
 }
