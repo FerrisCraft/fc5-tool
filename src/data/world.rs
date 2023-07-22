@@ -1,4 +1,4 @@
-use camino::Utf8PathBuf;
+use camino::{Utf8Path, Utf8PathBuf};
 use eyre::{Context, ContextCompat, Error, Result};
 use uuid::Uuid;
 
@@ -10,8 +10,10 @@ pub(crate) struct World {
 }
 
 impl World {
-    pub(crate) fn new(directory: Utf8PathBuf) -> Self {
-        Self { directory }
+    pub(crate) fn new(directory: &Utf8Path) -> Self {
+        Self {
+            directory: directory.to_owned(),
+        }
     }
 
     #[culpa::throws]
@@ -67,7 +69,7 @@ impl World {
             &self
                 .directory
                 .join("playerdata")
-                .join(&format!("{uuid}.dat")),
+                .join(format!("{uuid}.dat")),
         )?
     }
 
@@ -78,7 +80,7 @@ impl World {
             &self
                 .directory
                 .join("playerdata")
-                .join(&format!("{uuid}.dat")),
+                .join(format!("{uuid}.dat")),
             data,
         )?;
     }
@@ -96,7 +98,7 @@ impl World {
                         let filename = filename.to_str().context("non utf-8 filename")?;
                         let _guard =
                             tracing::info_span!("parsing filename", filename = %filename).entered();
-                        let Some((uuid, "dat")) = filename.split_once(".") else {
+                        let Some((uuid, "dat")) = filename.split_once('.') else {
                             return Ok(None);
                         };
                         Ok(Some(uuid.parse()?))

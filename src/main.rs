@@ -1,23 +1,20 @@
 #![allow(clippy::needless_question_mark)] // stupid lint
 
-use camino::Utf8PathBuf;
 use clap::Parser;
 use eyre::Error;
 use tracing_subscriber::layer::SubscriberExt;
 
-use crate::data::World;
-
-mod command;
+mod app;
+mod config;
 mod data;
 
 #[derive(Debug, clap::Parser)]
 struct Args {
-    /// Path to world directory
-    world: Utf8PathBuf,
     #[arg(long, short)]
     debug: bool,
-    #[command(subcommand)]
-    command: command::Command,
+
+    #[command(flatten)]
+    app: app::App,
 }
 
 #[culpa::throws]
@@ -36,7 +33,5 @@ fn main() {
         fmt.finish().with(tracing_error::ErrorLayer::default())
     })?;
 
-    let world = World::new(args.world);
-
-    args.command.run(world)?;
+    args.app.run()?;
 }

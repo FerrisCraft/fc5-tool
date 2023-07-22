@@ -4,7 +4,7 @@ use std::{
     str::FromStr,
 };
 
-#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd, serde::Deserialize)]
 pub(crate) struct Coord<T> {
     pub(crate) x: T,
     pub(crate) z: T,
