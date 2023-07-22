@@ -65,6 +65,7 @@ impl Chunk {
     #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.absolute_coord))]
     pub(crate) fn force_blending(&mut self) {
         // ensure!(self.data.get("Status") == Some(&fastnbt::Value::String("minecraft:full".into())), "chunk is not fully generated");
+        self.data.remove("isLightOn");
         self.data.insert(
             "blending_data".into(),
             fastnbt::nbt!({
@@ -102,6 +103,8 @@ impl Chunk {
             }
             base
         };
+
+        self.data.remove("isLightOn");
         self.data.insert(
             "blending_data".into(),
             fastnbt::nbt!({
