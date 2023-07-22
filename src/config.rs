@@ -10,6 +10,7 @@ pub(crate) struct Config {
     pub(crate) players: Players,
 
     #[serde(default)]
+    /// Default blending settings to apply to areas that don't define their own
     pub(crate) blending: Blending,
 
     /// Areas of the world to persist through --delete-chunks passes
@@ -55,7 +56,7 @@ pub(crate) enum OutOfBounds {
     PersistChunks { size: i64 },
 }
 
-#[derive(Clone, PartialEq, Debug, Default, serde::Deserialize)]
+#[derive(Copy, Clone, PartialEq, Debug, Default, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct Blending {
     /// Offset to apply to height data in blended chunks
@@ -74,6 +75,10 @@ pub(crate) enum PersistentArea {
 
         /// Bottom-right (most positive x and z) corner chunk to include
         bottom_right: Coord<i64>,
+
+        /// Override blending settings to apply to this area's border
+        #[serde(default)]
+        blending: Option<Blending>,
     },
 }
 
@@ -83,6 +88,7 @@ impl PersistentArea {
             Self::Square {
                 top_left,
                 bottom_right,
+                ..
             } => {
                 top_left.x <= coord.x
                     && top_left.z <= coord.z
@@ -119,9 +125,17 @@ mod tests {
                 [players.out-of-bounds.relocate]
                 safe-position = { x = -20.5, y = 70, z = 21.5 }
 
+                [blending]
+                offset = -10
+
                 [[persistent]]
                 top-left = { x = -31, z = -31 }
                 bottom-right = { x = 31, z = 31 }
+                blending.offset = 10
+
+                [[persistent]]
+                top-left = { x = 100, z = 100 }
+                bottom-right = { x = 101, z = 101 }
             "
             )?,
             Config {
@@ -134,11 +148,21 @@ mod tests {
                         },
                     }),
                 },
-                blending: Blending { offset: None },
-                persistent: vec![PersistentArea::Square {
-                    top_left: Coord { x: -31, z: -31 },
-                    bottom_right: Coord { x: 31, z: 31 },
-                }]
+                blending: Blending {
+                    offset: Some(-10.0)
+                },
+                persistent: vec![
+                    PersistentArea::Square {
+                        top_left: Coord { x: -31, z: -31 },
+                        bottom_right: Coord { x: 31, z: 31 },
+                        blending: Some(Blending { offset: Some(10.0) }),
+                    },
+                    PersistentArea::Square {
+                        top_left: Coord { x: 100, z: 100 },
+                        bottom_right: Coord { x: 101, z: 101 },
+                        blending: None,
+                    }
+                ]
             }
         );
     }

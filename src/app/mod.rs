@@ -2,7 +2,7 @@ use camino::Utf8PathBuf;
 use eyre::Error;
 
 use crate::{
-    config::{Config, OutOfBounds, PersistentArea},
+    config::{Blending, Config, OutOfBounds, PersistentArea},
     data::{Coord, World},
 };
 
@@ -16,6 +16,10 @@ mod relocate_players;
 pub(crate) struct App {
     /// Path to world directory
     world: Utf8PathBuf,
+
+    /// Enable all stages
+    #[arg(long)]
+    all: bool,
 
     /// If relocation is configured, relocate players outside configured persistence areas
     #[arg(long)]
@@ -59,25 +63,25 @@ impl App {
                 let top_left = chunk.checked_sub(offset)?;
                 let bottom_right = chunk.checked_add(offset)?;
                 tracing::info!("Adding persistent area from {top_left} to {bottom_right} around OOB player {uuid}");
-                Ok::<_, Error>(Some(PersistentArea::Square { top_left, bottom_right }))
+                Ok::<_, Error>(Some(PersistentArea::Square { top_left, bottom_right, blending: Some(Blending { offset: None }) }))
             }).filter_map(|x| x.transpose()))?;
 
             config.persistent.extend(new_areas);
         }
 
-        if self.relocate_players {
+        if self.all || self.relocate_players {
             relocate_players::run(&world, &config)?;
         }
 
-        if self.delete_chunks {
+        if self.all || self.delete_chunks {
             delete_chunks::run(&world, &config)?;
         }
 
-        if self.force_blending {
+        if self.all || self.force_blending {
             force_blending::run(&world, &config)?;
         }
 
-        if self.randomize_seed {
+        if self.all || self.randomize_seed {
             randomize_seed::run(&world)?;
         }
     }

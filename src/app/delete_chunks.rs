@@ -12,6 +12,7 @@ pub(super) fn run(world: &World, config: &Config) {
         |PersistentArea::Square {
              top_left: tl,
              bottom_right: br,
+             ..
          }| {
             let tlr = tl.chunk_to_region();
             let brr = br.chunk_to_region();
@@ -23,6 +24,7 @@ pub(super) fn run(world: &World, config: &Config) {
         |PersistentArea::Square {
              top_left: tl,
              bottom_right: br,
+             ..
          }| {
             ((tl.x)..=(br.x)).flat_map(move |x| ((tl.z)..=(br.z)).map(move |z| Coord { x, z }))
         },

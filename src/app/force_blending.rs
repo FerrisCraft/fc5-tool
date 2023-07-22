@@ -15,32 +15,42 @@ pub(super) fn run(world: &World, config: &Config) {
         |&PersistentArea::Square {
              top_left: tl,
              bottom_right: br,
+             blending,
          }| {
-            std::iter::once((tl, [North, West]))
-                .chain(std::iter::once((Coord { x: br.x, z: tl.z }, [North, East])))
-                .chain(std::iter::once((Coord { x: tl.x, z: br.z }, [South, West])))
-                .chain(std::iter::once((br, [South, East])))
+            let blending = blending.unwrap_or(config.blending);
+            std::iter::once((tl, [North, West], blending))
+                .chain(std::iter::once((
+                    Coord { x: br.x, z: tl.z },
+                    [North, East],
+                    blending,
+                )))
+                .chain(std::iter::once((
+                    Coord { x: tl.x, z: br.z },
+                    [South, West],
+                    blending,
+                )))
+                .chain(std::iter::once((br, [South, East], blending)))
                 .chain(((tl.x + 1)..=(br.x - 1)).flat_map(move |x| {
                     [
-                        (Coord { x, ..tl }, [North, South]),
-                        (Coord { x, ..br }, [North, South]),
+                        (Coord { x, ..tl }, [North, South], blending),
+                        (Coord { x, ..br }, [North, South], blending),
                     ]
                 }))
                 .chain(((tl.z + 1)..=(br.z - 1)).flat_map(move |z| {
                     [
-                        (Coord { z, ..tl }, [East, West]),
-                        (Coord { z, ..br }, [East, West]),
+                        (Coord { z, ..tl }, [East, West], blending),
+                        (Coord { z, ..br }, [East, West], blending),
                     ]
                 }))
         },
     ));
 
     let mut forced_chunk_count = 0;
-    for (coord, directions) in coords {
+    for (coord, directions, blending) in coords {
         let _guard = tracing::info_span!("blend_chunk", chunk.absolute_coord = %coord).entered();
         let mut region = world.region_for_chunk(coord)?.context("missing region")?;
         let mut chunk = region.chunk(coord).context("missing chunk")?;
-        if let Some(offset) = config.blending.offset {
+        if let Some(offset) = blending.offset {
             chunk.force_blending_with_heights(directions, offset)?;
         } else {
             chunk.force_blending()?;
