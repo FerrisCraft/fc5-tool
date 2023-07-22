@@ -10,6 +10,9 @@ pub(crate) struct Config {
     pub(crate) players: Players,
 
     #[serde(default)]
+    pub(crate) entities: Entities,
+
+    #[serde(default)]
     /// Default blending settings to apply to areas that don't define their own
     pub(crate) blending: Blending,
 
@@ -54,6 +57,14 @@ pub(crate) enum OutOfBounds {
     /// Persist a square of size×size chunks centered on the player (will round up to nearest odd
     /// value)
     PersistChunks { size: i64 },
+}
+
+#[derive(Clone, PartialEq, Debug, Default, serde::Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub(crate) struct Entities {
+    /// Wether to delete entities from removed chunks
+    #[serde(default)]
+    pub(crate) cull: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug, Default, serde::Deserialize)]
@@ -124,6 +135,9 @@ mod tests {
                 "
                 [players.out-of-bounds.relocate]
                 safe-position = { x = -20.5, y = 70, z = 21.5 }
+
+                [entities]
+                cull = true
 
                 [blending]
                 offset = -10
