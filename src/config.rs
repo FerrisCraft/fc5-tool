@@ -112,7 +112,7 @@ impl PersistentArea {
 
 #[cfg(test)]
 mod tests {
-    use super::{Blending, Config, Coord, Coord3, OutOfBounds, PersistentArea, Players};
+    use super::{Blending, Config, Coord, Coord3, Entities, OutOfBounds, PersistentArea, Players};
     use eyre::Error;
     use std::str::FromStr;
 
@@ -126,6 +126,7 @@ mod tests {
                     out_of_bounds: None
                 },
                 blending: Blending { offset: None },
+                entities: Entities { cull: false },
                 persistent: vec![],
             }
         );
@@ -165,6 +166,7 @@ mod tests {
                 blending: Blending {
                     offset: Some(-10.0)
                 },
+                entities: Entities { cull: true },
                 persistent: vec![
                     PersistentArea::Square {
                         top_left: Coord { x: -31, z: -31 },
