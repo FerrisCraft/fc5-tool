@@ -2,7 +2,7 @@ use camino::Utf8PathBuf;
 use eyre::Error;
 
 use crate::{
-    config::{Blending, Config, OutOfBounds, PersistentArea},
+    config::{Config, OutOfBounds, PersistentArea},
     data::{Coord, World},
 };
 
@@ -44,7 +44,7 @@ impl App {
         let world = World::new(&self.world);
         let mut config = Config::load(&self.world.join("fc5-tool.toml"))?;
 
-        if let Some(OutOfBounds::PersistChunks { size }) = config.players.out_of_bounds {
+        if let Some(OutOfBounds::PersistChunks { size, blending }) = config.players.out_of_bounds {
             let radius = size.max(1) / 2;
             let offset = Coord {
                 x: radius,
@@ -63,7 +63,7 @@ impl App {
                 let top_left = chunk.checked_sub(offset)?;
                 let bottom_right = chunk.checked_add(offset)?;
                 tracing::info!("Adding persistent area from {top_left} to {bottom_right} around OOB player {uuid}");
-                Ok::<_, Error>(Some(PersistentArea::Square { top_left, bottom_right, blending: Some(Blending { offset: None }) }))
+                Ok::<_, Error>(Some(PersistentArea::Square { top_left, bottom_right, blending }))
             }).filter_map(|x| x.transpose()))?;
 
             config.persistent.extend(new_areas);

@@ -54,9 +54,15 @@ pub(crate) enum OutOfBounds {
     /// to the defined safe position
     #[serde(rename_all = "kebab-case")]
     Relocate { safe_position: Coord3 },
-    /// Persist a square of size×size chunks centered on the player (will round up to nearest odd
-    /// value)
-    PersistChunks { size: i64 },
+    /// Persist a square of size×size chunks centered on the player
+    PersistChunks {
+        /// Size of the square, will round up to the nearest odd value
+        size: i64,
+
+        /// Override blending settings to apply to the area around each player
+        #[serde(default)]
+        blending: Option<Blending>,
+    },
 }
 
 #[derive(Clone, PartialEq, Debug, Default, serde::Deserialize)]
@@ -126,6 +132,53 @@ mod tests {
                     out_of_bounds: None
                 },
                 blending: Blending { offset: None },
+                entities: Entities { cull: false },
+                persistent: vec![],
+            }
+        );
+
+        assert_eq!(
+            Config::from_str(
+                "
+                [blending]
+                offset = -10
+
+                [players.out-of-bounds.persist-chunks]
+                size = 3
+                # empty inline table to override the global offset back to unset
+                blending = {}
+                ",
+            )?,
+            Config {
+                blending: Blending {
+                    offset: Some(-10.0)
+                },
+                players: Players {
+                    out_of_bounds: Some(OutOfBounds::PersistChunks {
+                        size: 3,
+                        blending: Some(Blending { offset: None }),
+                    }),
+                },
+                entities: Entities { cull: false },
+                persistent: vec![],
+            }
+        );
+
+        assert_eq!(
+            Config::from_str(
+                "
+                [players.out-of-bounds.persist-chunks]
+                size = 3
+                ",
+            )?,
+            Config {
+                blending: Blending { offset: None },
+                players: Players {
+                    out_of_bounds: Some(OutOfBounds::PersistChunks {
+                        size: 3,
+                        blending: None,
+                    }),
+                },
                 entities: Entities { cull: false },
                 persistent: vec![],
             }
