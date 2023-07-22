@@ -2,7 +2,7 @@ use camino::{Utf8Path, Utf8PathBuf};
 use eyre::{Context, ContextCompat, Error, Result};
 use uuid::Uuid;
 
-use super::{read_compound, write_compound, Compound, Coord, Region};
+use super::{read_compound, write_compound, Compound, Coord, Player, Region};
 
 #[derive(Debug)]
 pub(crate) struct World {
@@ -69,18 +69,22 @@ impl World {
 
     #[culpa::throws]
     #[tracing::instrument(skip_all, fields(world.directory = %self.directory, uuid = %uuid))]
-    pub(crate) fn player(&self, uuid: Uuid) -> Compound {
-        read_compound(
-            &self
-                .directory
-                .join("playerdata")
-                .join(format!("{uuid}.dat")),
-        )?
+    pub(crate) fn player(&self, uuid: Uuid) -> Player {
+        Player {
+            uuid,
+            data: read_compound(
+                &self
+                    .directory
+                    .join("playerdata")
+                    .join(format!("{uuid}.dat")),
+            )?,
+        }
     }
 
     #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, uuid = %uuid))]
-    pub(crate) fn save_player(&self, uuid: Uuid, data: &Compound) {
+    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, player.uuid = %player.uuid))]
+    pub(crate) fn save_player(&self, player: &Player) {
+        let Player { uuid, data } = player;
         write_compound(
             &self
                 .directory

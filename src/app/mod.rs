@@ -2,20 +2,24 @@ use camino::Utf8PathBuf;
 use eyre::Error;
 
 use crate::{
-    config::{Config, OutOfBounds},
-    data::World,
+    config::{Config, OutOfBounds, PersistentArea},
+    data::{Coord, World},
 };
 
 mod force_blending;
 // mod print_blending;
 mod delete_chunks;
 mod randomize_seed;
-mod rescue_players;
+mod relocate_players;
 
 #[derive(Debug, clap::Parser)]
 pub(crate) struct App {
     /// Path to world directory
     world: Utf8PathBuf,
+
+    /// If relocation is configured, relocate players outside configured persistence areas
+    #[arg(long)]
+    relocate_players: bool,
 
     /// Delete all chunks outside configured persistence areas
     #[arg(long)]
@@ -34,13 +38,39 @@ impl App {
     #[culpa::throws]
     pub(super) fn run(self) {
         let world = World::new(&self.world);
-        let config = Config::load(&self.world.join("fc5-tool.toml"))?;
+        let mut config = Config::load(&self.world.join("fc5-tool.toml"))?;
+
+        if let Some(OutOfBounds::PersistChunks { size }) = config.players.out_of_bounds {
+            let radius = size.max(1) / 2;
+            let offset = Coord {
+                x: radius,
+                z: radius,
+            };
+
+            let new_areas = Result::<Vec<_>, _>::from_iter(world.players()?.map(|uuid| {
+                let uuid = uuid?;
+                let player = world.player(uuid)?;
+                let chunk = player.position()?.to_coord().block_to_chunk();
+                for area in &config.persistent {
+                    if area.contains(chunk) {
+                        return Ok(None);
+                    }
+                }
+                let top_left = chunk.checked_sub(offset)?;
+                let bottom_right = chunk.checked_add(offset)?;
+                tracing::info!("Adding persistent area from {top_left} to {bottom_right} around OOB player {uuid}");
+                Ok::<_, Error>(Some(PersistentArea::Square { top_left, bottom_right }))
+            }).filter_map(|x| x.transpose()))?;
+
+            config.persistent.extend(new_areas);
+        }
+
+        if self.relocate_players {
+            relocate_players::run(&world, &config)?;
+        }
 
         if self.delete_chunks {
             delete_chunks::run(&world, &config)?;
-            if let Some(OutOfBounds::Relocate { safe_position }) = config.players.out_of_bounds {
-                rescue_players::run(&world, safe_position)?;
-            }
         }
 
         if self.force_blending {

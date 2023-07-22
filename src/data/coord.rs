@@ -42,7 +42,7 @@ impl Coord<i64> {
 
     #[culpa::throws]
     #[tracing::instrument(level = "trace", skip(self, other), fields(self = %self, other = %other))]
-    pub(super) fn checked_add(self, other: Self) -> Self {
+    pub(crate) fn checked_add(self, other: Self) -> Self {
         Self {
             x: self.x.checked_add(other.x).context("out of range")?,
             z: self.z.checked_add(other.z).context("out of range")?,
@@ -51,7 +51,7 @@ impl Coord<i64> {
 
     #[culpa::throws]
     #[tracing::instrument(level = "trace", skip(self, other), fields(self = %self, other = %other))]
-    pub(super) fn checked_sub(self, other: Self) -> Self {
+    pub(crate) fn checked_sub(self, other: Self) -> Self {
         Self {
             x: self.x.checked_sub(other.x).context("out of range")?,
             z: self.z.checked_sub(other.z).context("out of range")?,

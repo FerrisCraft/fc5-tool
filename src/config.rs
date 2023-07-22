@@ -1,7 +1,7 @@
 use camino::Utf8Path;
 use eyre::Error;
 
-use crate::data::Coord;
+use crate::data::{Coord, Coord3};
 
 #[derive(Clone, PartialEq, Debug, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -15,6 +15,23 @@ pub(crate) struct Config {
     /// Areas of the world to persist through --delete-chunks passes
     #[serde(default)]
     pub(crate) persistent: Vec<PersistentArea>,
+}
+
+impl Config {
+    #[culpa::throws]
+    #[tracing::instrument]
+    pub(crate) fn load(path: &Utf8Path) -> Self {
+        std::fs::read_to_string(path)?.parse()?
+    }
+}
+
+impl std::str::FromStr for Config {
+    type Err = Error;
+
+    #[culpa::throws]
+    fn from_str(s: &str) -> Self {
+        toml::from_str(s)?
+    }
 }
 
 #[derive(Clone, PartialEq, Debug, Default, serde::Deserialize)]
@@ -33,25 +50,9 @@ pub(crate) enum OutOfBounds {
     /// to the defined safe position
     #[serde(rename_all = "kebab-case")]
     Relocate { safe_position: Coord3 },
-    // TODO:
-    // PersistChunks {
-    //   radius: u64,
-    // }
-}
-
-#[derive(Copy, Clone, PartialEq, Debug, serde::Deserialize)]
-pub(crate) struct Coord3 {
-    pub(crate) x: f64,
-    pub(crate) y: f64,
-    pub(crate) z: f64,
-}
-
-impl std::fmt::Display for Coord3 {
-    #[culpa::throws(std::fmt::Error)]
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) {
-        let Self { x, y, z } = self;
-        write!(f, "{x},{y},{z}")?;
-    }
+    /// Persist a square of size×size chunks centered on the player (will round up to nearest odd
+    /// value)
+    PersistChunks { size: i64 },
 }
 
 #[derive(Clone, PartialEq, Debug, Default, serde::Deserialize)]
@@ -76,20 +77,19 @@ pub(crate) enum PersistentArea {
     },
 }
 
-impl Config {
-    #[culpa::throws]
-    #[tracing::instrument]
-    pub(crate) fn load(path: &Utf8Path) -> Self {
-        std::fs::read_to_string(path)?.parse()?
-    }
-}
-
-impl std::str::FromStr for Config {
-    type Err = Error;
-
-    #[culpa::throws]
-    fn from_str(s: &str) -> Self {
-        toml::from_str(s)?
+impl PersistentArea {
+    pub(crate) fn contains(&self, coord: Coord<i64>) -> bool {
+        match self {
+            Self::Square {
+                top_left,
+                bottom_right,
+            } => {
+                top_left.x <= coord.x
+                    && top_left.z <= coord.z
+                    && bottom_right.x >= coord.x
+                    && bottom_right.z >= coord.z
+            }
+        }
     }
 }
 
