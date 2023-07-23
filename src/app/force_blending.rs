@@ -55,10 +55,18 @@ pub(super) fn run(world: &World, config: &Config) {
         for (coord, directions, blending) in coords {
             let _guard =
                 tracing::info_span!("blend_chunk", chunk.absolute_coord = %coord).entered();
-            let mut region = dimension
-                .region_for_chunk(coord)?
-                .context("missing region")?;
-            let mut chunk = region.chunk(coord).context("missing chunk")?;
+            let Some(mut region) = dimension.region_for_chunk(coord)? else {
+                tracing::warn!(
+                    "Missing chunk on persistent border, will result in unblended regeneration"
+                );
+                continue;
+            };
+            let Some(mut chunk) = region.chunk(coord)? else {
+                tracing::warn!(
+                    "Missing chunk on persistent border, will result in unblended regeneration"
+                );
+                continue;
+            };
             if let Some(offset) = blending.offset {
                 chunk.force_blending_with_heights(directions, offset)?;
             } else {

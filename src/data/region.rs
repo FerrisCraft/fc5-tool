@@ -48,14 +48,16 @@ impl Region {
 
     #[culpa::throws]
     #[tracing::instrument(skip_all, fields(region.path = %self.path, region.coord = %self.coord, chunk.absolute_coord = %absolute_coord))]
-    pub(crate) fn chunk(&mut self, absolute_coord: Coord<i64>) -> Chunk {
+    pub(crate) fn chunk(&mut self, absolute_coord: Coord<i64>) -> Option<Chunk> {
         let relative_coord = make_relative(self.coord, absolute_coord)?;
-        let data = self
+        let Some(data) = self
             .region
             .read_chunk(relative_coord.x, relative_coord.z)
             .context("reading chunk")?
-            .context("chunk not in region file")?;
-        Chunk::parse(relative_coord, absolute_coord, &data)?
+        else {
+            return None;
+        };
+        Some(Chunk::parse(relative_coord, absolute_coord, &data)?)
     }
 
     #[culpa::throws]
