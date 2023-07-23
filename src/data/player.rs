@@ -1,7 +1,7 @@
-use eyre::{bail, Error};
+use eyre::{bail, ContextCompat, Error};
 use uuid::Uuid;
 
-use super::{Compound, Coord3};
+use super::{dimension, Compound, Coord3};
 
 pub(crate) struct Player {
     pub(crate) uuid: Uuid,
@@ -31,5 +31,18 @@ impl Player {
             "Pos".into(),
             fastnbt::nbt!([position.x, position.y, position.z]),
         );
+    }
+
+    #[culpa::throws]
+    #[tracing::instrument(skip(self), fields(player.uuid = %self.uuid))]
+    pub(crate) fn dimension(&self) -> dimension::Kind {
+        let dimension = self.data.get("Dimension").context("missing Dimension")?;
+        dimension::Kind::from_nbt(dimension)?
+    }
+
+    #[culpa::throws]
+    #[tracing::instrument(skip(self), fields(player.uuid = %self.uuid, dimension.kind = %dimension))]
+    pub(crate) fn set_dimension(&mut self, dimension: dimension::Kind) {
+        self.data.insert("Dimension".into(), dimension.nbt());
     }
 }

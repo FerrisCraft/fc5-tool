@@ -4,6 +4,7 @@ use eyre::Error;
 mod chunk;
 mod coord;
 mod coord3;
+pub mod dimension;
 mod player;
 mod region;
 mod world;
@@ -12,6 +13,7 @@ pub(crate) use self::{
     chunk::{Chunk, Direction},
     coord::Coord,
     coord3::Coord3,
+    dimension::Dimension,
     player::Player,
     region::Region,
     world::World,

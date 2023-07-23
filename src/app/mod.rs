@@ -1,5 +1,6 @@
 use camino::Utf8PathBuf;
 use eyre::Error;
+use itertools::Itertools;
 
 use crate::{
     config::{Config, OutOfBounds, PersistentArea},
@@ -55,18 +56,32 @@ impl App {
                 let uuid = uuid?;
                 let player = world.player(uuid)?;
                 let chunk = player.position()?.to_coord().block_to_chunk();
-                for area in &config.persistent {
+                let dimension_kind = player.dimension()?;
+                let Some(dimension) = config.dimension.get(&dimension_kind) else {
+                    tracing::info!("Player {uuid} is in disabled dimension {dimension_kind}");
+                    return Ok(None);
+                };
+                for area in &dimension.persistent {
                     if area.contains(chunk) {
+                        let PersistentArea::Square { top_left, bottom_right, .. } = area;
+                        tracing::info!("Player {uuid} is in-bounds of {top_left}..={bottom_right} of {dimension_kind}");
                         return Ok(None);
                     }
                 }
                 let top_left = chunk.checked_sub(offset)?;
                 let bottom_right = chunk.checked_add(offset)?;
-                tracing::info!("Adding persistent area from {top_left} to {bottom_right} around OOB player {uuid}");
-                Ok::<_, Error>(Some(PersistentArea::Square { top_left, bottom_right, blending }))
+                tracing::info!("Player {uuid} is out-of-bounds, adding persistent area {top_left}..={bottom_right} to {dimension_kind}");
+                Ok::<_, Error>(Some((dimension_kind, PersistentArea::Square { top_left, bottom_right, blending })))
             }).filter_map(|x| x.transpose()))?;
 
-            config.persistent.extend(new_areas);
+            for (dimension, new_areas) in new_areas.into_iter().into_group_map() {
+                config
+                    .dimension
+                    .get_mut(&dimension)
+                    .unwrap()
+                    .persistent
+                    .extend(new_areas);
+            }
         }
 
         if self.all || self.relocate_players {

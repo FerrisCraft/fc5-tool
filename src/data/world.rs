@@ -2,7 +2,7 @@ use camino::{Utf8Path, Utf8PathBuf};
 use eyre::{Context, ContextCompat, Error, Result};
 use uuid::Uuid;
 
-use super::{read_compound, write_compound, Compound, Coord, Player, Region};
+use super::{dimension, read_compound, write_compound, Compound, Dimension, Player};
 
 #[derive(Debug)]
 pub(crate) struct World {
@@ -16,82 +16,8 @@ impl World {
         }
     }
 
-    #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, region.coord = %coord))]
-    pub(crate) fn region(&self, coord: Coord<i64>) -> Option<Region> {
-        let Coord { x, z } = coord;
-        let path = self.directory.join("region").join(format!("r.{x}.{z}.mca"));
-        Region::from_path(path)?
-    }
-
-    #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(world.directory = %self.directory))]
-    pub(crate) fn regions(&self) -> impl Iterator<Item = Result<Region>> {
-        std::fs::read_dir(self.directory.join("region"))
-            .context("reading region dir")?
-            .filter_map(|entry| {
-                entry
-                    .context("reading dir entry")
-                    .and_then(|entry| Ok(Region::from_path(entry.path().try_into()?)?))
-                    .transpose()
-            })
-    }
-
-    #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, region.coord = %coord))]
-    pub(crate) fn remove_region(&self, coord: Coord<i64>) {
-        let Coord { x, z } = coord;
-        let path = self.directory.join("region").join(format!("r.{x}.{z}.mca"));
-        match std::fs::remove_file(path) {
-            Ok(()) => Ok(()),
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
-            res => res,
-        }?
-    }
-
-    #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, chunk.absolute_coord = %absolute_coord))]
-    pub(crate) fn region_for_chunk(&self, absolute_coord: Coord<i64>) -> Option<Region> {
-        self.region(absolute_coord.chunk_to_region())?
-    }
-
-    #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, region.coord = %coord))]
-    pub(crate) fn entity_region(&self, coord: Coord<i64>) -> Option<Region> {
-        let Coord { x, z } = coord;
-        let path = self
-            .directory
-            .join("entities")
-            .join(format!("r.{x}.{z}.mca"));
-        Region::from_path(path)?
-    }
-
-    #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(world.directory = %self.directory))]
-    pub(crate) fn entity_regions(&self) -> impl Iterator<Item = Result<Region>> {
-        std::fs::read_dir(self.directory.join("entities"))
-            .context("reading entities dir")?
-            .filter_map(|entry| {
-                entry
-                    .context("reading dir entry")
-                    .and_then(|entry| Ok(Region::from_path(entry.path().try_into()?)?))
-                    .transpose()
-            })
-    }
-
-    #[culpa::throws]
-    #[tracing::instrument(skip_all, fields(world.directory = %self.directory, region.coord = %coord))]
-    pub(crate) fn remove_entity_region(&self, coord: Coord<i64>) {
-        let Coord { x, z } = coord;
-        let path = self
-            .directory
-            .join("entities")
-            .join(format!("r.{x}.{z}.mca"));
-        match std::fs::remove_file(path) {
-            Ok(()) => Ok(()),
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
-            res => res,
-        }?
+    pub(crate) fn dimension(&self, kind: dimension::Kind) -> Dimension {
+        Dimension::new(kind, &self.directory)
     }
 
     #[culpa::throws]

@@ -1,7 +1,8 @@
 use camino::Utf8Path;
 use eyre::Error;
+use std::collections::HashMap;
 
-use crate::data::{Coord, Coord3};
+use crate::data::{dimension, Coord, Coord3};
 
 #[derive(Clone, PartialEq, Debug, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -13,12 +14,11 @@ pub(crate) struct Config {
     pub(crate) entities: Entities,
 
     #[serde(default)]
+    pub(crate) dimension: HashMap<dimension::Kind, Dimension>,
+
+    #[serde(default)]
     /// Default blending settings to apply to areas that don't define their own
     pub(crate) blending: Blending,
-
-    /// Areas of the world to persist through --delete-chunks passes
-    #[serde(default)]
-    pub(crate) persistent: Vec<PersistentArea>,
 }
 
 impl Config {
@@ -53,7 +53,8 @@ pub(crate) enum OutOfBounds {
     // TODO: to their current spawn location if that is persistent, otherwise
     /// to the defined safe position
     #[serde(rename_all = "kebab-case")]
-    Relocate { safe_position: Coord3 },
+    Relocate(Relocate),
+
     /// Persist a square of size×size chunks centered on the player
     PersistChunks {
         /// Size of the square, will round up to the nearest odd value
@@ -65,12 +66,27 @@ pub(crate) enum OutOfBounds {
     },
 }
 
+#[derive(Copy, Clone, PartialEq, Debug, serde::Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub(crate) struct Relocate {
+    pub(crate) dimension: dimension::Kind,
+    pub(crate) position: Coord3,
+}
+
 #[derive(Clone, PartialEq, Debug, Default, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct Entities {
-    /// Wether to delete entities from removed chunks
+    /// Whether to delete entities from removed chunks
     #[serde(default)]
     pub(crate) cull: bool,
+}
+
+#[derive(Clone, PartialEq, Debug, Default, serde::Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub(crate) struct Dimension {
+    /// Areas of this dimension to persist through --delete-chunks passes
+    #[serde(default)]
+    pub(crate) persistent: Vec<PersistentArea>,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug, Default, serde::Deserialize)]
@@ -118,7 +134,10 @@ impl PersistentArea {
 
 #[cfg(test)]
 mod tests {
-    use super::{Blending, Config, Coord, Coord3, Entities, OutOfBounds, PersistentArea, Players};
+    use super::{
+        dimension, Blending, Config, Coord, Coord3, Dimension, Entities, HashMap, OutOfBounds,
+        PersistentArea, Players, Relocate,
+    };
     use eyre::Error;
     use std::str::FromStr;
 
@@ -133,7 +152,7 @@ mod tests {
                 },
                 blending: Blending { offset: None },
                 entities: Entities { cull: false },
-                persistent: vec![],
+                dimension: HashMap::new(),
             }
         );
 
@@ -160,7 +179,7 @@ mod tests {
                     }),
                 },
                 entities: Entities { cull: false },
-                persistent: vec![],
+                dimension: HashMap::new(),
             }
         );
 
@@ -180,15 +199,16 @@ mod tests {
                     }),
                 },
                 entities: Entities { cull: false },
-                persistent: vec![],
+                dimension: HashMap::new(),
             }
         );
 
         assert_eq!(
             Config::from_str(
-                "
+                r#"
                 [players.out-of-bounds.relocate]
-                safe-position = { x = -20.5, y = 70, z = 21.5 }
+                dimension = "overworld"
+                position = { x = -20.5, y = 70, z = 21.5 }
 
                 [entities]
                 cull = true
@@ -196,42 +216,48 @@ mod tests {
                 [blending]
                 offset = -10
 
-                [[persistent]]
+                [[dimension.overworld.persistent]]
                 top-left = { x = -31, z = -31 }
                 bottom-right = { x = 31, z = 31 }
                 blending.offset = 10
 
-                [[persistent]]
+                [[dimension.overworld.persistent]]
                 top-left = { x = 100, z = 100 }
                 bottom-right = { x = 101, z = 101 }
-            "
+            "#
             )?,
             Config {
                 players: Players {
-                    out_of_bounds: Some(OutOfBounds::Relocate {
-                        safe_position: Coord3 {
+                    out_of_bounds: Some(OutOfBounds::Relocate(Relocate {
+                        dimension: dimension::Kind::Overworld,
+                        position: Coord3 {
                             x: -20.5,
                             y: 70.0,
                             z: 21.5
                         },
-                    }),
+                    })),
                 },
                 blending: Blending {
                     offset: Some(-10.0)
                 },
                 entities: Entities { cull: true },
-                persistent: vec![
-                    PersistentArea::Square {
-                        top_left: Coord { x: -31, z: -31 },
-                        bottom_right: Coord { x: 31, z: 31 },
-                        blending: Some(Blending { offset: Some(10.0) }),
-                    },
-                    PersistentArea::Square {
-                        top_left: Coord { x: 100, z: 100 },
-                        bottom_right: Coord { x: 101, z: 101 },
-                        blending: None,
+                dimension: HashMap::from_iter([(
+                    dimension::Kind::Overworld,
+                    Dimension {
+                        persistent: vec![
+                            PersistentArea::Square {
+                                top_left: Coord { x: -31, z: -31 },
+                                bottom_right: Coord { x: 31, z: 31 },
+                                blending: Some(Blending { offset: Some(10.0) }),
+                            },
+                            PersistentArea::Square {
+                                top_left: Coord { x: 100, z: 100 },
+                                bottom_right: Coord { x: 101, z: 101 },
+                                blending: None,
+                            }
+                        ]
                     }
-                ]
+                ),]),
             }
         );
     }
