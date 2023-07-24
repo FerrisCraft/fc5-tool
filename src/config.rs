@@ -15,10 +15,6 @@ pub(crate) struct Config {
 
     #[serde(default)]
     pub(crate) dimension: HashMap<dimension::Kind, Dimension>,
-
-    #[serde(default)]
-    /// Default blending settings to apply to areas that don't define their own
-    pub(crate) blending: Blending,
 }
 
 impl Config {
@@ -60,7 +56,8 @@ pub(crate) enum OutOfBounds {
         /// Size of the square, will round up to the nearest odd value
         size: i64,
 
-        /// Override blending settings to apply to the area around each player
+        /// Blending settings to apply to the area around each player,
+        /// if unset no blending will be applied
         #[serde(default)]
         blending: Option<Blending>,
     },
@@ -92,7 +89,10 @@ pub(crate) struct Dimension {
 #[derive(Copy, Clone, PartialEq, Debug, Default, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct Blending {
-    /// Offset to apply to height data in blended chunks
+    /// Offset to apply to height data in blended chunks,
+    /// if unset will delegate to minecraft to create height data
+    /// (note that setting 0 is different from unset,
+    /// as this tool may generate height data differently from minecraft)
     #[serde(default)]
     pub(crate) offset: Option<f64>,
 }
@@ -109,7 +109,8 @@ pub(crate) enum PersistentArea {
         /// Bottom-right (most positive x and z) corner chunk to include
         bottom_right: Coord<i64>,
 
-        /// Override blending settings to apply to this area's border
+        /// Blending settings to apply to this area,
+        /// if unset no blending will be applied
         #[serde(default)]
         blending: Option<Blending>,
     },
@@ -150,7 +151,6 @@ mod tests {
                 players: Players {
                     out_of_bounds: None
                 },
-                blending: Blending { offset: None },
                 entities: Entities { cull: false },
                 dimension: HashMap::new(),
             }
@@ -159,19 +159,13 @@ mod tests {
         assert_eq!(
             Config::from_str(
                 "
-                [blending]
-                offset = -10
-
                 [players.out-of-bounds.persist-chunks]
                 size = 3
-                # empty inline table to override the global offset back to unset
+                # empty inline table to use builtin blending
                 blending = {}
                 ",
             )?,
             Config {
-                blending: Blending {
-                    offset: Some(-10.0)
-                },
                 players: Players {
                     out_of_bounds: Some(OutOfBounds::PersistChunks {
                         size: 3,
@@ -191,7 +185,6 @@ mod tests {
                 ",
             )?,
             Config {
-                blending: Blending { offset: None },
                 players: Players {
                     out_of_bounds: Some(OutOfBounds::PersistChunks {
                         size: 3,
@@ -213,9 +206,6 @@ mod tests {
                 [entities]
                 cull = true
 
-                [blending]
-                offset = -10
-
                 [[dimension.overworld.persistent]]
                 top-left = { x = -31, z = -31 }
                 bottom-right = { x = 31, z = 31 }
@@ -236,9 +226,6 @@ mod tests {
                             z: 21.5
                         },
                     })),
-                },
-                blending: Blending {
-                    offset: Some(-10.0)
                 },
                 entities: Entities { cull: true },
                 dimension: HashMap::from_iter([(

@@ -1,4 +1,4 @@
-use eyre::{Context, ContextCompat, Error};
+use eyre::Error;
 
 use crate::{
     config::{self, Config, PersistentArea},
@@ -17,39 +17,46 @@ pub(super) fn run(world: &World, config: &Config) {
 
         let dimension = world.dimension(*dimension_kind);
 
-        let coords = Vec::from_iter(persistent.iter().flat_map(
-            |&PersistentArea::Square {
-                 top_left: tl,
-                 bottom_right: br,
-                 blending,
-             }| {
-                let blending = blending.unwrap_or(config.blending);
-                std::iter::once((tl, [North, West], blending))
-                    .chain(std::iter::once((
-                        Coord { x: br.x, z: tl.z },
-                        [North, East],
-                        blending,
-                    )))
-                    .chain(std::iter::once((
-                        Coord { x: tl.x, z: br.z },
-                        [South, West],
-                        blending,
-                    )))
-                    .chain(std::iter::once((br, [South, East], blending)))
-                    .chain(((tl.x + 1)..=(br.x - 1)).flat_map(move |x| {
-                        [
-                            (Coord { x, ..tl }, [North, South], blending),
-                            (Coord { x, ..br }, [North, South], blending),
-                        ]
-                    }))
-                    .chain(((tl.z + 1)..=(br.z - 1)).flat_map(move |z| {
-                        [
-                            (Coord { z, ..tl }, [East, West], blending),
-                            (Coord { z, ..br }, [East, West], blending),
-                        ]
-                    }))
-            },
-        ));
+        let coords = Vec::from_iter(
+            persistent
+                .iter()
+                .filter_map(
+                    |&PersistentArea::Square {
+                         top_left: tl,
+                         bottom_right: br,
+                         blending,
+                     }| {
+                        let blending = blending?;
+                        Some(
+                            std::iter::once((tl, [North, West], blending))
+                                .chain(std::iter::once((
+                                    Coord { x: br.x, z: tl.z },
+                                    [North, East],
+                                    blending,
+                                )))
+                                .chain(std::iter::once((
+                                    Coord { x: tl.x, z: br.z },
+                                    [South, West],
+                                    blending,
+                                )))
+                                .chain(std::iter::once((br, [South, East], blending)))
+                                .chain(((tl.x + 1)..=(br.x - 1)).flat_map(move |x| {
+                                    [
+                                        (Coord { x, ..tl }, [North, South], blending),
+                                        (Coord { x, ..br }, [North, South], blending),
+                                    ]
+                                }))
+                                .chain(((tl.z + 1)..=(br.z - 1)).flat_map(move |z| {
+                                    [
+                                        (Coord { z, ..tl }, [East, West], blending),
+                                        (Coord { z, ..br }, [East, West], blending),
+                                    ]
+                                })),
+                        )
+                    },
+                )
+                .flatten(),
+        );
 
         let mut forced_chunk_count = 0;
         for (coord, directions, blending) in coords {
