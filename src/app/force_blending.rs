@@ -10,10 +10,10 @@ use crate::{
 };
 
 #[culpa::throws]
+#[tracing::instrument(name = "blend", skip_all)]
 pub(super) fn run(world: &World, config: &Config) {
     for (dimension_kind, config::Dimension { persistent }) in &config.dimension {
-        let _guard =
-            tracing::info_span!("blend_dimension", dimension.kind = %dimension_kind).entered();
+        let _guard = tracing::info_span!("dimension", dimension.kind = %dimension_kind).entered();
 
         let dimension = world.dimension(*dimension_kind);
 
@@ -60,8 +60,7 @@ pub(super) fn run(world: &World, config: &Config) {
 
         let mut forced_chunk_count = 0;
         for (coord, directions, blending) in coords {
-            let _guard =
-                tracing::info_span!("blend_chunk", chunk.absolute_coord = %coord).entered();
+            let _guard = tracing::info_span!("chunk", chunk.absolute_coord = %coord).entered();
             let Some(mut region) = dimension.region_for_chunk(coord)? else {
                 tracing::warn!(
                     "Missing chunk on persistent border, will result in unblended regeneration"
@@ -80,7 +79,7 @@ pub(super) fn run(world: &World, config: &Config) {
                 chunk.force_blending()?;
             }
             region.save_chunk(&chunk)?;
-            tracing::debug!("Forced blending to {directions:?}");
+            tracing::debug!(directions = ?directions, "Forced blending");
             forced_chunk_count += 1;
         }
 

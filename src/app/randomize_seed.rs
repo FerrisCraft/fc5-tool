@@ -3,6 +3,7 @@ use eyre::{bail, Error};
 use crate::data::World;
 
 #[culpa::throws]
+#[tracing::instrument(name = "randomize", skip_all)]
 pub(super) fn run(world: &World) {
     let mut level = world.level()?;
     let Some(fastnbt::Value::Compound(data)) = level.get_mut("Data") else {
@@ -14,8 +15,9 @@ pub(super) fn run(world: &World) {
     let Some(fastnbt::Value::Long(seed)) = settings.get_mut("seed") else {
         bail!("bad seed")
     };
-    let new_seed = rand::random();
-    let old_seed = std::mem::replace(seed, new_seed);
+    let _guard = tracing::info_span!("from", old.seed = %seed).entered();
+    *seed = rand::random();
+    let _guard = tracing::info_span!("to", new.seed = %seed).entered();
     world.save_level(&level)?;
-    tracing::info!("Randomized seed from {old_seed} to {new_seed}");
+    tracing::info!("Randomized seed");
 }

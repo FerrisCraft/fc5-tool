@@ -54,23 +54,35 @@ impl App {
 
             let new_areas = Result::<Vec<_>, _>::from_iter(world.players()?.map(|uuid| {
                 let uuid = uuid?;
+
+                let _guard = tracing::info_span!("player", player.uuid = %uuid).entered();
                 let player = world.player(uuid)?;
-                let chunk = player.position()?.to_coord().block_to_chunk();
+
+                let position = player.position()?;
                 let dimension_kind = player.dimension()?;
+                let _guard = tracing::info_span!("position", player.dimension = %dimension_kind, player.position = %position).entered();
+
                 let Some(dimension) = config.dimension.get(&dimension_kind) else {
-                    tracing::info!("Player {uuid} is in disabled dimension {dimension_kind}");
+                    tracing::info!("Player is in disabled dimension");
                     return Ok(None);
                 };
+
+                let chunk = position.to_coord().block_to_chunk();
                 for area in &dimension.persistent {
+                    let PersistentArea::Square { top_left, bottom_right, .. } = area;
+                    let _guard = tracing::info_span!("persistent", area.top_left = %top_left, area.bottom_right = %bottom_right).entered();
                     if area.contains(chunk) {
-                        let PersistentArea::Square { top_left, bottom_right, .. } = area;
-                        tracing::info!("Player {uuid} is in-bounds of {top_left}..={bottom_right} of {dimension_kind}");
+                        tracing::info!("Player is in-bounds");
                         return Ok(None);
                     }
                 }
+
                 let top_left = chunk.checked_sub(offset)?;
                 let bottom_right = chunk.checked_add(offset)?;
-                tracing::info!("Player {uuid} is out-of-bounds, adding persistent area {top_left}..={bottom_right} to {dimension_kind}");
+
+                let _guard = tracing::info_span!("area", new_area.top_left = %top_left, new_area.bottom_right = %bottom_right).entered();
+                tracing::info!("Player is out-of-bounds, adding persistent area");
+
                 Ok::<_, Error>(Some((dimension_kind, PersistentArea::Square { top_left, bottom_right, blending })))
             }).filter_map(|x| x.transpose()))?;
 
