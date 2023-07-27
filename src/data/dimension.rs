@@ -35,7 +35,7 @@ impl Kind {
     #[tracing::instrument(skip_all, fields(value = ?value))]
     pub(super) fn from_nbt(value: &fastnbt::Value) -> Self {
         match value.as_str().context("not string value")? {
-            "minecraft:the_overworld" => Kind::Overworld,
+            "minecraft:overworld" => Kind::Overworld,
             "minecraft:the_nether" => Kind::Nether,
             "minecraft:the_end" => Kind::End,
             other => bail!("unknown dimension {other}"),
