@@ -316,6 +316,7 @@ dependencies = [
  "tracing",
  "tracing-error",
  "tracing-subscriber",
+ "tracing-tree",
  "uuid",
 ]
 
@@ -777,6 +778,18 @@ dependencies = [
  "thread_local",
  "tracing-core",
  "tracing-log",
+]
+
+[[package]]
+name = "tracing-tree"
+version = "0.2.4"
+source = "git+https://github.com/Nemo157/tracing-tree?branch=suppress-spans#a5af2122fd427f1b8bcab2c18b703dc2c2fa349a"
+dependencies = [
+ "is-terminal",
+ "nu-ansi-term",
+ "tracing-core",
+ "tracing-log",
+ "tracing-subscriber",
 ]
 
 [[package]]

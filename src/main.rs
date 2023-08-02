@@ -30,15 +30,12 @@ fn main() {
     let args = Args::parse();
 
     tracing_subscriber::registry()
-        .with({
-            let mut fmt = tracing_subscriber::fmt::layer()
-                .with_writer(std::io::stderr)
-                .compact();
-            if args.trace {
-                fmt = fmt.with_span_events(tracing_subscriber::fmt::format::FmtSpan::ENTER);
-            }
-            fmt
-        })
+        .with(
+            tracing_tree::HierarchicalLayer::new(2)
+                .with_targets(true)
+                .with_print_span_elapsed(false)
+                .with_delay_spans(!args.trace),
+        )
         .with(tracing_error::ErrorLayer::default())
         .with(match args.verbose as i16 - args.quiet as i16 {
             i16::MIN..=-3 => tracing_subscriber::filter::LevelFilter::ERROR,
