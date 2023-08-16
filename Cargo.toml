@@ -2,6 +2,8 @@
 name = "fc5-tool"
 version = "0.1.0"
 edition = "2021"
+license = "EUPL-1.2"
+publish = false
 
 [dependencies]
 camino = "1.1.6"
