@@ -1,0 +1,687 @@
+
+# cargo-vet imports lock
+
+[[publisher.anstream]]
+version = "0.3.2"
+when = "2023-05-01"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.anstyle]]
+version = "1.0.1"
+when = "2023-06-20"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.anstyle-parse]]
+version = "0.2.1"
+when = "2023-06-20"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.anstyle-query]]
+version = "1.0.0"
+when = "2023-04-13"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.anstyle-wincon]]
+version = "1.0.1"
+when = "2023-04-24"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.backtrace]]
+version = "0.3.68"
+when = "2023-06-29"
+user-id = 2915
+user-login = "Amanieu"
+user-name = "Amanieu d'Antras"
+
+[[publisher.bitflags]]
+version = "2.3.3"
+when = "2023-06-27"
+user-id = 3204
+user-login = "KodrAus"
+user-name = "Ashley Mannix"
+
+[[publisher.byteorder]]
+version = "1.4.3"
+when = "2021-03-10"
+user-id = 189
+user-login = "BurntSushi"
+user-name = "Andrew Gallant"
+
+[[publisher.cc]]
+version = "1.0.79"
+when = "2023-01-28"
+user-id = 55123
+user-login = "rust-lang-owner"
+
+[[publisher.cfg-if]]
+version = "1.0.0"
+when = "2020-10-06"
+user-id = 1
+user-login = "alexcrichton"
+user-name = "Alex Crichton"
+
+[[publisher.clap]]
+version = "4.3.15"
+when = "2023-07-18"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.clap_builder]]
+version = "4.3.15"
+when = "2023-07-18"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.clap_derive]]
+version = "4.3.12"
+when = "2023-07-14"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.clap_lex]]
+version = "0.5.0"
+when = "2023-05-19"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.color-eyre]]
+version = "0.6.2"
+when = "2022-07-11"
+user-id = 43601
+user-login = "yaahc"
+user-name = "Jane Losare-Lusby"
+
+[[publisher.color-spantrace]]
+version = "0.2.0"
+when = "2022-01-13"
+user-id = 43601
+user-login = "yaahc"
+user-name = "Jane Losare-Lusby"
+
+[[publisher.colorchoice]]
+version = "1.0.0"
+when = "2023-04-13"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.culpa]]
+version = "1.0.1"
+when = "2023-06-29"
+user-id = 782
+user-login = "Nemo157"
+user-name = "Nemo157"
+
+[[publisher.culpa-macros]]
+version = "1.0.1"
+when = "2023-06-29"
+user-id = 782
+user-login = "Nemo157"
+user-name = "Nemo157"
+
+[[publisher.equivalent]]
+version = "1.0.1"
+when = "2023-07-10"
+user-id = 539
+user-login = "cuviper"
+user-name = "Josh Stone"
+
+[[publisher.eyre]]
+version = "0.6.8"
+when = "2022-04-04"
+user-id = 43601
+user-login = "yaahc"
+user-name = "Jane Losare-Lusby"
+
+[[publisher.flate2]]
+version = "1.0.26"
+when = "2023-04-28"
+user-id = 4333
+user-login = "joshtriplett"
+user-name = "Josh Triplett"
+
+[[publisher.getrandom]]
+version = "0.2.10"
+when = "2023-06-06"
+user-id = 5059
+user-login = "newpavlov"
+user-name = "Artyom Pavlov"
+
+[[publisher.hashbrown]]
+version = "0.14.0"
+when = "2023-06-05"
+user-id = 2915
+user-login = "Amanieu"
+user-name = "Amanieu d'Antras"
+
+[[publisher.indenter]]
+version = "0.3.3"
+when = "2021-02-22"
+user-id = 43601
+user-login = "yaahc"
+user-name = "Jane Losare-Lusby"
+
+[[publisher.indexmap]]
+version = "2.0.0"
+when = "2023-06-23"
+user-id = 539
+user-login = "cuviper"
+user-name = "Josh Stone"
+
+[[publisher.is-terminal]]
+version = "0.4.9"
+when = "2023-07-06"
+user-id = 6825
+user-login = "sunfishcode"
+user-name = "Dan Gohman"
+
+[[publisher.libc]]
+version = "0.2.146"
+when = "2023-06-06"
+user-id = 2915
+user-login = "Amanieu"
+user-name = "Amanieu d'Antras"
+
+[[publisher.linux-raw-sys]]
+version = "0.4.3"
+when = "2023-06-14"
+user-id = 6825
+user-login = "sunfishcode"
+user-name = "Dan Gohman"
+
+[[publisher.memchr]]
+version = "2.5.0"
+when = "2022-04-30"
+user-id = 189
+user-login = "BurntSushi"
+user-name = "Andrew Gallant"
+
+[[publisher.once_cell]]
+version = "1.18.0"
+when = "2023-06-04"
+user-id = 2699
+user-login = "matklad"
+user-name = "Alex Kladov"
+
+[[publisher.pin-project-lite]]
+version = "0.2.10"
+when = "2023-07-02"
+user-id = 33035
+user-login = "taiki-e"
+user-name = "Taiki Endo"
+
+[[publisher.proc-macro2]]
+version = "1.0.66"
+when = "2023-07-16"
+user-id = 3618
+user-login = "dtolnay"
+user-name = "David Tolnay"
+
+[[publisher.quote]]
+version = "1.0.31"
+when = "2023-07-16"
+user-id = 3618
+user-login = "dtolnay"
+user-name = "David Tolnay"
+
+[[publisher.rand]]
+version = "0.8.5"
+when = "2022-02-14"
+user-id = 1234
+user-login = "dhardy"
+user-name = "Diggory Hardy"
+
+[[publisher.rustix]]
+version = "0.38.4"
+when = "2023-07-11"
+user-id = 6825
+user-login = "sunfishcode"
+user-name = "Dan Gohman"
+
+[[publisher.serde]]
+version = "1.0.171"
+when = "2023-07-10"
+user-id = 3618
+user-login = "dtolnay"
+user-name = "David Tolnay"
+
+[[publisher.serde_bytes]]
+version = "0.11.12"
+when = "2023-07-15"
+user-id = 3618
+user-login = "dtolnay"
+user-name = "David Tolnay"
+
+[[publisher.serde_derive]]
+version = "1.0.171"
+when = "2023-07-10"
+user-id = 3618
+user-login = "dtolnay"
+user-name = "David Tolnay"
+
+[[publisher.serde_spanned]]
+version = "0.6.3"
+when = "2023-06-24"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.sharded-slab]]
+version = "0.1.4"
+when = "2021-10-12"
+user-id = 1249
+user-login = "hawkw"
+user-name = "Eliza Weisman"
+
+[[publisher.smallvec]]
+version = "1.10.0"
+when = "2022-10-02"
+user-id = 2017
+user-login = "mbrubeck"
+user-name = "Matt Brubeck"
+
+[[publisher.syn]]
+version = "1.0.109"
+when = "2023-02-24"
+user-id = 3618
+user-login = "dtolnay"
+user-name = "David Tolnay"
+
+[[publisher.syn]]
+version = "2.0.26"
+when = "2023-07-15"
+user-id = 3618
+user-login = "dtolnay"
+user-name = "David Tolnay"
+
+[[publisher.thread_local]]
+version = "1.1.7"
+when = "2023-02-12"
+user-id = 2915
+user-login = "Amanieu"
+user-name = "Amanieu d'Antras"
+
+[[publisher.toml]]
+version = "0.7.6"
+when = "2023-07-05"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.toml_datetime]]
+version = "0.6.3"
+when = "2023-06-24"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.toml_edit]]
+version = "0.19.14"
+when = "2023-07-14"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[[publisher.tracing]]
+version = "0.1.37"
+when = "2022-10-06"
+user-id = 1249
+user-login = "hawkw"
+user-name = "Eliza Weisman"
+
+[[publisher.tracing-attributes]]
+version = "0.1.26"
+when = "2023-06-22"
+user-id = 1249
+user-login = "hawkw"
+user-name = "Eliza Weisman"
+
+[[publisher.tracing-core]]
+version = "0.1.31"
+when = "2023-05-11"
+user-id = 1249
+user-login = "hawkw"
+user-name = "Eliza Weisman"
+
+[[publisher.tracing-error]]
+version = "0.2.0"
+when = "2021-10-23"
+user-id = 1249
+user-login = "hawkw"
+user-name = "Eliza Weisman"
+
+[[publisher.tracing-log]]
+version = "0.1.3"
+when = "2022-04-21"
+user-id = 1249
+user-login = "hawkw"
+user-name = "Eliza Weisman"
+
+[[publisher.tracing-subscriber]]
+version = "0.3.17"
+when = "2023-04-22"
+user-id = 1249
+user-login = "hawkw"
+user-name = "Eliza Weisman"
+
+[[publisher.unicode-ident]]
+version = "1.0.11"
+when = "2023-07-15"
+user-id = 3618
+user-login = "dtolnay"
+user-name = "David Tolnay"
+
+[[publisher.uuid]]
+version = "1.4.1"
+when = "2023-07-17"
+user-id = 3204
+user-login = "KodrAus"
+user-name = "Ashley Mannix"
+
+[[publisher.valuable]]
+version = "0.1.0"
+when = "2022-01-03"
+user-id = 10
+user-login = "carllerche"
+user-name = "Carl Lerche"
+
+[[publisher.wasi]]
+version = "0.11.0+wasi-snapshot-preview1"
+when = "2022-01-19"
+user-id = 1
+user-login = "alexcrichton"
+user-name = "Alex Crichton"
+
+[[publisher.winapi]]
+version = "0.3.9"
+when = "2020-06-26"
+user-id = 63
+user-login = "retep998"
+user-name = "Peter Atashian"
+
+[[publisher.windows-sys]]
+version = "0.48.0"
+when = "2023-03-31"
+user-id = 64539
+user-login = "kennykerr"
+user-name = "Kenny Kerr"
+
+[[publisher.windows-targets]]
+version = "0.48.1"
+when = "2023-06-28"
+user-id = 64539
+user-login = "kennykerr"
+user-name = "Kenny Kerr"
+
+[[publisher.windows_aarch64_gnullvm]]
+version = "0.48.0"
+when = "2023-03-31"
+user-id = 64539
+user-login = "kennykerr"
+user-name = "Kenny Kerr"
+
+[[publisher.windows_aarch64_msvc]]
+version = "0.48.0"
+when = "2023-03-31"
+user-id = 64539
+user-login = "kennykerr"
+user-name = "Kenny Kerr"
+
+[[publisher.windows_i686_gnu]]
+version = "0.48.0"
+when = "2023-03-31"
+user-id = 64539
+user-login = "kennykerr"
+user-name = "Kenny Kerr"
+
+[[publisher.windows_i686_msvc]]
+version = "0.48.0"
+when = "2023-03-31"
+user-id = 64539
+user-login = "kennykerr"
+user-name = "Kenny Kerr"
+
+[[publisher.windows_x86_64_gnu]]
+version = "0.48.0"
+when = "2023-03-31"
+user-id = 64539
+user-login = "kennykerr"
+user-name = "Kenny Kerr"
+
+[[publisher.windows_x86_64_gnullvm]]
+version = "0.48.0"
+when = "2023-03-31"
+user-id = 64539
+user-login = "kennykerr"
+user-name = "Kenny Kerr"
+
+[[publisher.windows_x86_64_msvc]]
+version = "0.48.0"
+when = "2023-03-31"
+user-id = 64539
+user-login = "kennykerr"
+user-name = "Kenny Kerr"
+
+[[publisher.winnow]]
+version = "0.5.0"
+when = "2023-07-13"
+user-id = 6743
+user-login = "epage"
+user-name = "Ed Page"
+
+[audits.first-party.audits]
+
+[[audits.third-party.audits.adler]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+version = "1.0.2"
+notes = "This is a small crate which forbids unsafe code and is a straightforward implementation of the adler hashing algorithm."
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.bit_field]]
+who = "George Burgess IV <gbiv@google.com>"
+criteria = "safe-to-deploy"
+version = "0.10.2"
+aggregated-from = [
+    "https://chromium.googlesource.com/chromiumos/third_party/rust_crates/+/refs/heads/main/cargo-vet/audits.toml?format=TEXT",
+    "https://raw.githubusercontent.com/google/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.either]]
+who = "David Cook <dcook@divviup.org>"
+criteria = "safe-to-deploy"
+version = "1.6.1"
+aggregated-from = "https://raw.githubusercontent.com/divviup/libprio-rs/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.either]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "1.6.1 -> 1.7.0"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.either]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "1.7.0 -> 1.8.0"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.either]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "1.8.0 -> 1.8.1"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.errno]]
+who = "Dan Gohman <dev@sunfishcode.online>"
+criteria = "safe-to-deploy"
+version = "0.3.0"
+notes = "This crate uses libc and windows-sys APIs to get and set the raw OS error value."
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.errno]]
+who = "Dan Gohman <dev@sunfishcode.online>"
+criteria = "safe-to-deploy"
+delta = "0.3.0 -> 0.3.1"
+notes = "Just a dependency version bump and a bug fix for redox"
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.errno-dragonfly]]
+who = "Jamey Sharp <jsharp@fastly.com>"
+criteria = "safe-to-deploy"
+version = "0.1.2"
+notes = "This should be portable to any POSIX system and seems like it should be part of the libc crate, but at any rate it's safe as is."
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.heck]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+version = "0.4.0"
+notes = "Contains `forbid_unsafe` and only uses `std::fmt` from the standard library. Otherwise only contains string manipulation."
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.heck]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "0.4.0 -> 0.4.1"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.lazy_static]]
+who = "Nika Layzell <nika@thelayzells.com>"
+criteria = "safe-to-deploy"
+version = "1.4.0"
+notes = "I have read over the macros, and audited the unsafe code."
+aggregated-from = [
+    "https://raw.githubusercontent.com/mozilla/cargo-vet/main/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.libc]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.146 -> 0.2.147"
+notes = "Only new type definitions and updating others for some platforms, no major changes"
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.log]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+version = "0.4.17"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.log]]
+who = "Jan-Erik Rediger <jrediger@mozilla.com>"
+criteria = "safe-to-deploy"
+delta = "0.4.17 -> 0.4.18"
+notes = "One dependency removed, others updated (which we don't rely on), some APIs (which we don't use) changed."
+aggregated-from = [
+    "https://raw.githubusercontent.com/mozilla/glean/main/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.log]]
+who = "Jack Grigg <jack@electriccoin.co>"
+criteria = "safe-to-deploy"
+delta = "0.4.18 -> 0.4.19"
+aggregated-from = [
+    "https://raw.githubusercontent.com/zcash/zcash/master/qa/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/zcash/rust-ecosystem/main/supply-chain/audits.toml",
+]
+
+[[audits.third-party.audits.miniz_oxide]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+version = "0.7.1"
+notes = """
+This crate is a Rust implementation of zlib compression/decompression and has
+been used by default by the Rust standard library for quite some time. It's also
+a default dependency of the popular `backtrace` crate for decompressing debug
+information. This crate forbids unsafe code and does not otherwise access system
+resources. It's originally a port of the `miniz.c` library as well, and given
+its own longevity should be relatively hardened against some of the more common
+compression-related issues.
+"""
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.num_enum]]
+who = "Johan Andersson <opensource@embark-studios.com>"
+criteria = "safe-to-deploy"
+version = "0.5.11"
+notes = "No unsafe usage or ambient capabilities"
+aggregated-from = "https://raw.githubusercontent.com/EmbarkStudios/rust-ecosystem/main/audits.toml"
+
+[[audits.third-party.audits.num_enum_derive]]
+who = "Johan Andersson <opensource@embark-studios.com>"
+criteria = "safe-to-deploy"
+version = "0.5.11"
+notes = "Proc macro that generates some unsafe code for conversion but looks sound, no ambient capabilities"
+aggregated-from = "https://raw.githubusercontent.com/EmbarkStudios/rust-ecosystem/main/audits.toml"
+
+[[audits.third-party.audits.rand_chacha]]
+who = "David Cook <dcook@divviup.org>"
+criteria = "safe-to-deploy"
+version = "0.3.1"
+aggregated-from = "https://raw.githubusercontent.com/divviup/libprio-rs/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.rand_core]]
+who = "David Cook <dcook@divviup.org>"
+criteria = "safe-to-deploy"
+version = "0.6.3"
+aggregated-from = "https://raw.githubusercontent.com/divviup/libprio-rs/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.rand_core]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "0.6.3 -> 0.6.4"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.rustc-demangle]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+version = "0.1.21"
+notes = "I am the author of this crate."
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.rustc-demangle]]
+who = "Conrad Ludgate <conradludgate@gmail.com>"
+criteria = "safe-to-deploy"
+delta = "0.1.21 -> 0.1.23"
+aggregated-from = "https://raw.githubusercontent.com/atuinsh/atuin/vetting/supply-chain/audits.toml"
+
+[[audits.third-party.audits.utf8parse]]
+who = "Johan Andersson <opensource@embark-studios.com>"
+criteria = "safe-to-deploy"
+version = "0.2.1"
+notes = "Single unsafe usage that looks sound, no ambient capabilities"
+aggregated-from = "https://raw.githubusercontent.com/EmbarkStudios/rust-ecosystem/main/audits.toml"
