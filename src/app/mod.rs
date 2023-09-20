@@ -84,13 +84,13 @@ impl App {
                 tracing::info!("Player is out-of-bounds, adding persistent area");
 
                 Ok::<_, Error>(Some((dimension_kind, PersistentArea::Square { top_left, bottom_right, blending })))
-            }).filter_map(|x| x.transpose()))?;
+            }).filter_map(Result::transpose))?;
 
             for (dimension, new_areas) in new_areas.into_iter().into_group_map() {
                 config
                     .dimension
                     .get_mut(&dimension)
-                    .unwrap()
+                    .expect("only configured dimensions have areas added")
                     .persistent
                     .extend(new_areas);
             }
