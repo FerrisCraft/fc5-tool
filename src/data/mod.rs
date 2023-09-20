@@ -4,7 +4,7 @@ use eyre::Error;
 mod chunk;
 mod coord;
 mod coord3;
-pub mod dimension;
+pub(crate) mod dimension;
 mod player;
 mod region;
 mod world;

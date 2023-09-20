@@ -91,7 +91,7 @@ impl Dimension {
             Ok(()) => Ok(()),
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
             res => res,
-        }?
+        }?;
     }
 
     #[culpa::throws]
@@ -136,6 +136,6 @@ impl Dimension {
             Ok(()) => Ok(()),
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
             res => res,
-        }?
+        }?;
     }
 }

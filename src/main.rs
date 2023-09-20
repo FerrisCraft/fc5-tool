@@ -1,4 +1,4 @@
-#![allow(clippy::needless_question_mark)] // stupid lint
+#![allow(clippy::needless_question_mark)] // stupid lint, TODO: remove on 1.74
 
 use clap::Parser;
 use eyre::Error;
@@ -37,7 +37,7 @@ fn main() {
                 .with_delay_spans(!args.trace),
         )
         .with(tracing_error::ErrorLayer::default())
-        .with(match args.verbose as i16 - args.quiet as i16 {
+        .with(match i16::from(args.verbose) - i16::from(args.quiet) {
             i16::MIN..=-3 => tracing_subscriber::filter::LevelFilter::ERROR,
             -2 => tracing_subscriber::filter::LevelFilter::ERROR,
             -1 => tracing_subscriber::filter::LevelFilter::WARN,

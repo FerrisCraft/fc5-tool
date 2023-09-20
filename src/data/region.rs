@@ -19,7 +19,7 @@ impl Debug for Region {
         f.debug_struct("Region")
             .field("coord", &self.coord)
             .field("path", &self.path)
-            .finish()?
+            .finish()?;
     }
 }
 

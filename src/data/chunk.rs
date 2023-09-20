@@ -10,8 +10,8 @@ pub(crate) struct Chunk {
     pub(crate) data: Compound,
 }
 
-// Calculates average heights around the border of the heightmap, starting in the top-right winding
-// widdershins:
+// Calculates average heights around the border of the heightmap,
+// starting in the top-right winding widdershins:
 //
 //        3 2 1 0
 //      4         f
@@ -22,14 +22,26 @@ pub(crate) struct Chunk {
 fn calculate_blending_heights(heightmap: [[i16; 16]; 16], offset: f64) -> [f64; 16] {
     fn average(iter: impl Iterator<Item = i16>) -> impl Iterator<Item = f64> {
         let chunks = iter.chunks(4);
-        let mut values = chunks.into_iter().map(|v| v.sum::<i16>() as f64 / 4.0);
-        [(); 4].map(|()| values.next().unwrap()).into_iter()
+        let mut values = chunks.into_iter().map(|v| f64::from(v.sum::<i16>()) / 4.0);
+        [(); 4]
+            .map(|()| {
+                values
+                    .next()
+                    .expect("by construction there will be enough values")
+            })
+            .into_iter()
     }
     let mut values = average(heightmap[0].into_iter().rev())
         .chain(average(heightmap.iter().map(|&[v, ..]| v)))
         .chain(average(heightmap.iter().map(|&[.., v]| v).rev()))
         .chain(average(heightmap[15].into_iter()));
-    [(); 16].map(|()| values.next().unwrap().floor() + offset)
+    [(); 16].map(|()| {
+        values
+            .next()
+            .expect("by construction there will be enough values")
+            .floor()
+            + offset
+    })
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -117,7 +129,7 @@ impl Chunk {
 
     #[culpa::throws]
     #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.absolute_coord))]
-    pub(crate) fn heightmaps(&self) -> Heightmaps {
+    pub(crate) fn heightmaps(&self) -> Heightmaps<'_> {
         let Some(fastnbt::Value::Compound(data)) = self.data.get("Heightmaps") else {
             bail!("bad Heightmaps")
         };
@@ -131,6 +143,15 @@ pub(crate) struct Heightmaps<'a> {
     data: &'a Compound,
 }
 
+fn bitand<T, U>(x: T, y: U) -> U
+where
+    T: std::ops::BitAnd<T> + From<U>,
+    U: TryFrom<T::Output>,
+    U::Error: std::fmt::Debug,
+{
+    U::try_from(x & T::from(y)).expect("cannot overflow because of the &")
+}
+
 impl Heightmaps<'_> {
     #[culpa::throws]
     #[tracing::instrument(skip(self), fields(chunk.absolute_coord = %self.chunk.absolute_coord))]
@@ -138,13 +159,23 @@ impl Heightmaps<'_> {
         let Some(fastnbt::Value::LongArray(data)) = self.data.get("OCEAN_FLOOR") else {
             bail!("bad OCEAN_FLOOR")
         };
-        let values = Vec::from_iter(
-            data.iter()
-                .map(|&i| i as u64)
-                .flat_map(|u| (0..7).map(move |j| ((u >> (j * 9)) & 0x1ff) as i16)),
-        );
+        let values = Vec::from_iter(data.iter().map(|&i| 0u64.wrapping_add_signed(i)).flat_map(
+            |u| {
+                (0..7).map(move |j| {
+                    i16::try_from(bitand(u >> (j * 9), 0x1ff_u16))
+                        .expect("cannot overflow because 0x1ff < i16::MAX")
+                })
+            },
+        ));
         ensure!(values.len() >= 16 * 16, "not enough values in heightmap");
         let mut values = values.into_iter();
-        [(); 16].map(|()| [(); 16].map(|()| values.next().unwrap() - 64))
+        [(); 16].map(|()| {
+            [(); 16].map(|()| {
+                values
+                    .next()
+                    .expect("check above verified there will be enough values")
+                    - 64
+            })
+        })
     }
 }

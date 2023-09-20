@@ -9,6 +9,7 @@ pub(crate) struct Coord3 {
 
 impl Coord3 {
     pub(crate) fn to_coord(self) -> Coord<i64> {
+        #[allow(clippy::as_conversions)] // no alternative yet
         Coord {
             x: self.x as i64,
             z: self.z as i64,
