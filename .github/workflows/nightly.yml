@@ -1,5 +1,7 @@
 jobs:
   nightly:
+    permissions:
+      issues: write
     uses: Nullus157/.github/.github/workflows/nightly.yml@main
 
 on:
