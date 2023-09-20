@@ -73,10 +73,6 @@ criteria = "safe-to-deploy"
 version = "0.10.0"
 criteria = "safe-to-deploy"
 
-[[exemptions.tracing-tree]]
-version = "0.2.4@git:a5af2122fd427f1b8bcab2c18b703dc2c2fa349a"
-criteria = "safe-to-deploy"
-
 [[exemptions.winapi-i686-pc-windows-gnu]]
 version = "0.4.0"
 criteria = "safe-to-deploy"
