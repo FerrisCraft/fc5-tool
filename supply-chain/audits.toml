@@ -1,7 +1,11 @@
 
 # cargo-vet audits file
 
-[audits]
+[[audits.camino]]
+who = "Wim Looman <vet@nemo157.com>"
+criteria = "safe-to-deploy"
+delta = "1.1.4 -> 1.1.6"
+notes = "No unsafe related code changed"
 
 [[trusted.anstream]]
 criteria = "safe-to-deploy"

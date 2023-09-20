@@ -501,6 +501,12 @@ aggregated-from = [
     "https://raw.githubusercontent.com/google/supply-chain/main/audits.toml",
 ]
 
+[[audits.third-party.audits.camino]]
+who = "Pat Hickey <phickey@fastly.com>"
+criteria = "safe-to-deploy"
+version = "1.1.4"
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
 [[audits.third-party.audits.either]]
 who = "David Cook <dcook@divviup.org>"
 criteria = "safe-to-deploy"
