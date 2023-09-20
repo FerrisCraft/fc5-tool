@@ -7,6 +7,18 @@ criteria = "safe-to-deploy"
 delta = "1.1.4 -> 1.1.6"
 notes = "No unsafe related code changed"
 
+[[audits.cesu8]]
+who = "Wim Looman <git@nemo157.com>"
+criteria = "safe-to-deploy"
+version = "1.1.0"
+notes = """
+Contains some unsafe for `str::from_utf8`. By brief inspection it looks like it
+correctly handles non-utf8 input. Added some fuzzing targets and ran them for a
+while with no issues detected:
+
+https://github.com/emk/cesu8-rs/compare/master...Nemo157:cesu8-rs:fuzz
+"""
+
 [[audits.tracing-tree]]
 who = "Wim Looman <vet@nemo157.com>"
 criteria = "safe-to-deploy"
