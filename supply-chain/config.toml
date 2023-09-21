@@ -1,0 +1,78 @@
+
+# cargo-vet config file
+
+[cargo-vet]
+version = "0.8"
+
+[imports.first-party]
+url = "https://raw.githubusercontent.com/Nullus157/.github/main/supply-chain/first-party-audits.toml"
+
+[imports.third-party]
+url = "https://raw.githubusercontent.com/Nullus157/.github/main/supply-chain/third-party-audits.toml"
+
+[policy.tracing-tree]
+audit-as-crates-io = true
+
+[[exemptions.addr2line]]
+version = "0.20.0"
+criteria = "safe-to-deploy"
+
+[[exemptions.crc32fast]]
+version = "1.3.2"
+criteria = "safe-to-deploy"
+
+[[exemptions.fastanvil]]
+version = "0.28.0"
+criteria = "safe-to-deploy"
+
+[[exemptions.fastnbt]]
+version = "2.4.4"
+criteria = "safe-to-deploy"
+
+[[exemptions.gimli]]
+version = "0.27.3"
+criteria = "safe-to-deploy"
+
+[[exemptions.hermit-abi]]
+version = "0.3.2"
+criteria = "safe-to-deploy"
+
+[[exemptions.itertools]]
+version = "0.11.0"
+criteria = "safe-to-deploy"
+
+[[exemptions.nu-ansi-term]]
+version = "0.46.0"
+criteria = "safe-to-deploy"
+
+[[exemptions.object]]
+version = "0.31.1"
+criteria = "safe-to-deploy"
+
+[[exemptions.overload]]
+version = "0.1.1"
+criteria = "safe-to-deploy"
+
+[[exemptions.owo-colors]]
+version = "3.5.0"
+criteria = "safe-to-deploy"
+
+[[exemptions.ppv-lite86]]
+version = "0.2.17"
+criteria = "safe-to-deploy"
+
+[[exemptions.proc-macro-crate]]
+version = "1.3.1"
+criteria = "safe-to-deploy"
+
+[[exemptions.strsim]]
+version = "0.10.0"
+criteria = "safe-to-deploy"
+
+[[exemptions.winapi-i686-pc-windows-gnu]]
+version = "0.4.0"
+criteria = "safe-to-deploy"
+
+[[exemptions.winapi-x86_64-pc-windows-gnu]]
+version = "0.4.0"
+criteria = "safe-to-deploy"
