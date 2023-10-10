@@ -10,8 +10,8 @@ use crate::{
 mod force_blending;
 // mod print_blending;
 mod delete_chunks;
-mod randomize_seed;
 mod relocate_players;
+mod set_seed;
 
 #[derive(Debug, clap::Parser)]
 pub(crate) struct App {
@@ -37,6 +37,10 @@ pub(crate) struct App {
     /// Randomize the world seed
     #[arg(long)]
     randomize_seed: bool,
+
+    /// Set a particular world seed
+    #[arg(long, value_name = "SEED")]
+    set_seed: Option<i64>,
 }
 
 impl App {
@@ -109,7 +113,11 @@ impl App {
         }
 
         if self.all || self.randomize_seed {
-            randomize_seed::run(&world)?;
+            set_seed::run(&world, rand::random())?;
+        }
+
+        if let (Some(seed), false) = (self.set_seed, self.randomize_seed) {
+            set_seed::run(&world, seed)?;
         }
     }
 }
