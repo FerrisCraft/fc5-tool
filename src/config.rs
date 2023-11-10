@@ -191,6 +191,7 @@ impl TryFrom<UnvalidatedPersistentArea> for PersistentArea {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::{
         dimension, Blending, Config, Coord, Coord3, Dimension, Entities, HashMap, OutOfBounds,
@@ -306,11 +307,11 @@ mod tests {
     #[culpa::throws]
     fn bad_persistent_area_coordinates() {
         assert_eq!(
-            Config::from_str(indoc! { r#"
+            Config::from_str(indoc! { "
                 [[dimension.overworld.persistent]]
                 top-left = { x = 31, z = 31 }
                 bottom-right = { x = -31, z = -31 }
-            "# })
+            " })
             .unwrap_err()
             .to_string(),
             indoc! { "
@@ -323,11 +324,11 @@ mod tests {
         );
 
         assert_eq!(
-            Config::from_str(indoc! { r#"
+            Config::from_str(indoc! { "
                 [[dimension.overworld.persistent]]
                 top-left = { x = -31, z = 31 }
                 bottom-right = { x = 31, z = -31 }
-            "# })
+            " })
             .unwrap_err()
             .to_string(),
             indoc! { "
@@ -340,11 +341,11 @@ mod tests {
         );
 
         assert_eq!(
-            Config::from_str(indoc! { r#"
+            Config::from_str(indoc! { "
                 [[dimension.overworld.persistent]]
                 top-left = { x = 31, z = 31 }
                 bottom-right = { x = 31, z = 31 }
-            "# })
+            " })
             .unwrap_err()
             .to_string(),
             indoc! { "
