@@ -50,6 +50,13 @@ user-id = 3204
 user-login = "KodrAus"
 user-name = "Ashley Mannix"
 
+[[publisher.bumpalo]]
+version = "3.14.0"
+when = "2023-09-14"
+user-id = 696
+user-login = "fitzgen"
+user-name = "Nick Fitzgerald"
+
 [[publisher.byteorder]]
 version = "1.4.3"
 when = "2021-03-10"
@@ -119,6 +126,13 @@ user-id = 6743
 user-login = "epage"
 user-name = "Ed Page"
 
+[[publisher.core-foundation-sys]]
+version = "0.8.4"
+when = "2023-04-03"
+user-id = 5946
+user-login = "jrmuizel"
+user-name = "Jeff Muizelaar"
+
 [[publisher.culpa]]
 version = "1.0.1"
 when = "2023-06-29"
@@ -174,6 +188,13 @@ when = "2021-02-22"
 user-id = 43601
 user-login = "yaahc"
 user-name = "Jane Losare-Lusby"
+
+[[publisher.indexmap]]
+version = "1.9.3"
+when = "2023-03-24"
+user-id = 539
+user-login = "cuviper"
+user-name = "Josh Stone"
 
 [[publisher.indexmap]]
 version = "2.0.0"
@@ -399,13 +420,6 @@ user-id = 3204
 user-login = "KodrAus"
 user-name = "Ashley Mannix"
 
-[[publisher.valuable]]
-version = "0.1.0"
-when = "2022-01-03"
-user-id = 10
-user-login = "carllerche"
-user-name = "Carl Lerche"
-
 [[publisher.wasi]]
 version = "0.11.0+wasi-snapshot-preview1"
 when = "2022-01-19"
@@ -492,12 +506,71 @@ user-name = "Ed Page"
 
 [audits.first-party.audits]
 
+[[audits.third-party.wildcard-audits.bumpalo]]
+who = "Nick Fitzgerald <fitzgen@gmail.com>"
+criteria = "safe-to-deploy"
+user-id = 696 # Nick Fitzgerald (fitzgen)
+start = "2019-03-16"
+end = "2024-03-10"
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.wildcard-audits.core-foundation-sys]]
+who = "Bobby Holley <bobbyholley@gmail.com>"
+criteria = "safe-to-deploy"
+user-id = 5946 # Jeff Muizelaar (jrmuizel)
+start = "2020-10-14"
+end = "2023-05-04"
+renew = false
+notes = "I've reviewed every source contribution that was neither authored nor reviewed by Mozilla."
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
 [[audits.third-party.audits.adler]]
 who = "Alex Crichton <alex@alexcrichton.com>"
 criteria = "safe-to-deploy"
 version = "1.0.2"
 notes = "This is a small crate which forbids unsafe code and is a straightforward implementation of the adler hashing algorithm."
 aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.android_system_properties]]
+who = "Nicolas Silva <nical@fastmail.com>"
+criteria = "safe-to-deploy"
+version = "0.1.2"
+notes = "I wrote this crate, reviewed by jimb. It is mostly a Rust port of some C++ code we already ship."
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.android_system_properties]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "0.1.2 -> 0.1.4"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.android_system_properties]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "0.1.4 -> 0.1.5"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.autocfg]]
+who = "Josh Stone <jistone@redhat.com>"
+criteria = "safe-to-deploy"
+version = "1.1.0"
+notes = "All code written or reviewed by Josh Stone."
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
 
 [[audits.third-party.audits.bit_field]]
 who = "George Burgess IV <gbiv@google.com>"
@@ -568,6 +641,26 @@ version = "0.1.2"
 notes = "This should be portable to any POSIX system and seems like it should be part of the libc crate, but at any rate it's safe as is."
 aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
 
+[[audits.third-party.audits.fnv]]
+who = "Bobby Holley <bobbyholley@gmail.com>"
+criteria = "safe-to-deploy"
+version = "1.0.7"
+notes = "Simple hasher implementation with no unsafe code."
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.hashbrown]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+version = "0.12.3"
+notes = "This version is used in rust's libstd, so effectively we're already trusting it"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
 [[audits.third-party.audits.heck]]
 who = "Alex Crichton <alex@alexcrichton.com>"
 criteria = "safe-to-deploy"
@@ -582,6 +675,68 @@ delta = "0.4.0 -> 0.4.1"
 aggregated-from = [
     "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
     "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.hermit-abi]]
+who = "Jack Grigg <jack@electriccoin.co>"
+criteria = "safe-to-deploy"
+delta = "0.3.1 -> 0.3.2"
+aggregated-from = [
+    "https://raw.githubusercontent.com/zcash/zcash/master/qa/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/zcash/rust-ecosystem/main/supply-chain/audits.toml",
+]
+
+[[audits.third-party.audits.hex]]
+who = "Simon Friedberger <simon@mozilla.com>"
+criteria = "safe-to-deploy"
+version = "0.4.3"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.ident_case]]
+who = "Johan Andersson <opensource@embark-studios.com>"
+criteria = "safe-to-deploy"
+version = "1.0.1"
+notes = "No unsafe usage or ambient capabilities"
+aggregated-from = "https://raw.githubusercontent.com/EmbarkStudios/rust-ecosystem/main/audits.toml"
+
+[[audits.third-party.audits.itoa]]
+who = "Jack Grigg <jack@z.cash>"
+criteria = "safe-to-deploy"
+delta = "1.0.1 -> 1.0.3"
+notes = "Update makes no changes to code."
+aggregated-from = [
+    "https://raw.githubusercontent.com/zcash/zcash/master/qa/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/zcash/rust-ecosystem/main/supply-chain/audits.toml",
+]
+
+[[audits.third-party.audits.itoa]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "1.0.3 -> 1.0.5"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.itoa]]
+who = "Jack Grigg <jack@electriccoin.co>"
+criteria = "safe-to-deploy"
+delta = "1.0.5 -> 1.0.6"
+aggregated-from = [
+    "https://raw.githubusercontent.com/zcash/zcash/master/qa/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/zcash/rust-ecosystem/main/supply-chain/audits.toml",
+]
+
+[[audits.third-party.audits.itoa]]
+who = "Jack Grigg <jack@electriccoin.co>"
+criteria = "safe-to-deploy"
+delta = "1.0.6 -> 1.0.9"
+aggregated-from = [
+    "https://raw.githubusercontent.com/zcash/zcash/master/qa/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/zcash/rust-ecosystem/main/supply-chain/audits.toml",
 ]
 
 [[audits.third-party.audits.lazy_static]]
@@ -644,6 +799,35 @@ compression-related issues.
 """
 aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
 
+[[audits.third-party.audits.nu-ansi-term]]
+who = "Pat Hickey <phickey@fastly.com>"
+criteria = "safe-to-deploy"
+version = "0.46.0"
+notes = "one use of unsafe to call windows specific api to get console handle."
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.num-traits]]
+who = "Josh Stone <jistone@redhat.com>"
+criteria = "safe-to-deploy"
+version = "0.2.15"
+notes = "All code written or reviewed by Josh Stone."
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.num-traits]]
+who = "David Cook <dcook@divviup.org>"
+criteria = "safe-to-deploy"
+delta = "0.2.15 -> 0.2.16"
+aggregated-from = "https://raw.githubusercontent.com/divviup/libprio-rs/main/supply-chain/audits.toml"
+
+[[audits.third-party.audits.num-traits]]
+who = "Ameer Ghani <inahga@divviup.org>"
+criteria = "safe-to-deploy"
+delta = "0.2.16 -> 0.2.17"
+aggregated-from = "https://raw.githubusercontent.com/divviup/libprio-rs/main/supply-chain/audits.toml"
+
 [[audits.third-party.audits.num_enum]]
 who = "Johan Andersson <opensource@embark-studios.com>"
 criteria = "safe-to-deploy"
@@ -657,6 +841,13 @@ criteria = "safe-to-deploy"
 version = "0.5.11"
 notes = "Proc macro that generates some unsafe code for conversion but looks sound, no ambient capabilities"
 aggregated-from = "https://raw.githubusercontent.com/EmbarkStudios/rust-ecosystem/main/audits.toml"
+
+[[audits.third-party.audits.overload]]
+who = "Pat Hickey <phickey@fastly.com>"
+criteria = "safe-to-deploy"
+version = "0.1.1"
+notes = "small crate, only defines macro-rules!, nicely documented as well"
+aggregated-from = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
 
 [[audits.third-party.audits.rand_chacha]]
 who = "David Cook <dcook@divviup.org>"
@@ -692,9 +883,70 @@ criteria = "safe-to-deploy"
 delta = "0.1.21 -> 0.1.23"
 aggregated-from = "https://raw.githubusercontent.com/atuinsh/atuin/vetting/supply-chain/audits.toml"
 
+[[audits.third-party.audits.ryu]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "1.0.10 -> 1.0.11"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.ryu]]
+who = "Mike Hommey <mh+mozilla@glandium.org>"
+criteria = "safe-to-deploy"
+delta = "1.0.11 -> 1.0.12"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.ryu]]
+who = "Jack Grigg <jack@electriccoin.co>"
+criteria = "safe-to-deploy"
+delta = "1.0.12 -> 1.0.13"
+aggregated-from = [
+    "https://raw.githubusercontent.com/zcash/zcash/master/qa/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/zcash/rust-ecosystem/main/supply-chain/audits.toml",
+]
+
+[[audits.third-party.audits.ryu]]
+who = "Jack Grigg <jack@electriccoin.co>"
+criteria = "safe-to-deploy"
+delta = "1.0.13 -> 1.0.15"
+aggregated-from = [
+    "https://raw.githubusercontent.com/zcash/zcash/master/qa/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/zcash/rust-ecosystem/main/supply-chain/audits.toml",
+]
+
+[[audits.third-party.audits.time-core]]
+who = "Kershaw Chang <kershaw@mozilla.com>"
+criteria = "safe-to-deploy"
+version = "0.1.0"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
+[[audits.third-party.audits.time-core]]
+who = "Kershaw Chang <kershaw@mozilla.com>"
+criteria = "safe-to-deploy"
+delta = "0.1.0 -> 0.1.1"
+aggregated-from = [
+    "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml",
+    "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml",
+]
+
 [[audits.third-party.audits.utf8parse]]
 who = "Johan Andersson <opensource@embark-studios.com>"
 criteria = "safe-to-deploy"
 version = "0.2.1"
 notes = "Single unsafe usage that looks sound, no ambient capabilities"
+aggregated-from = "https://raw.githubusercontent.com/EmbarkStudios/rust-ecosystem/main/audits.toml"
+
+[[audits.third-party.audits.valuable]]
+who = "Johan Andersson <opensource@embark-studios.com>"
+criteria = "safe-to-deploy"
+version = "0.1.0"
+notes = "No unsafe usage or ambient capabilities, sane build script"
 aggregated-from = "https://raw.githubusercontent.com/EmbarkStudios/rust-ecosystem/main/audits.toml"

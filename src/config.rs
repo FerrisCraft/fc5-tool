@@ -1,5 +1,5 @@
 use camino::Utf8Path;
-use eyre::Error;
+use eyre::{ensure, Error};
 use std::collections::HashMap;
 
 use crate::data::{dimension, Coord, Coord3};
@@ -42,6 +42,7 @@ pub(crate) struct Players {
     pub(crate) out_of_bounds: Option<OutOfBounds>,
 }
 
+#[serde_with::serde_as]
 #[derive(Copy, Clone, PartialEq, Debug, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum OutOfBounds {
@@ -54,7 +55,7 @@ pub(crate) enum OutOfBounds {
     /// Persist a square of size×size chunks centered on the player
     PersistChunks {
         /// Size of the square, will round up to the nearest odd value
-        size: i64,
+        size: u32,
 
         /// Blending settings to apply to the area around each player,
         /// if unset no blending will be applied
@@ -78,11 +79,13 @@ pub(crate) struct Entities {
     pub(crate) cull: bool,
 }
 
+#[serde_with::serde_as]
 #[derive(Clone, PartialEq, Debug, Default, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct Dimension {
     /// Areas of this dimension to persist through --delete-chunks passes
     #[serde(default)]
+    #[serde_as(as = "Vec<serde_with::TryFromInto<UnvalidatedPersistentArea>>")]
     pub(crate) persistent: Vec<PersistentArea>,
 }
 
@@ -99,9 +102,19 @@ pub(crate) struct Blending {
 
 #[derive(Copy, Clone, PartialEq, Debug, serde::Deserialize)]
 #[serde(untagged, rename_all = "kebab-case")]
+enum UnvalidatedPersistentArea {
+    #[serde(rename_all = "kebab-case")]
+    Square {
+        top_left: Coord<i64>,
+        bottom_right: Coord<i64>,
+        #[serde(default)]
+        blending: Option<Blending>,
+    },
+}
+
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub(crate) enum PersistentArea {
     /// Persist a square area, defined by (inclusive) corner chunks
-    #[serde(rename_all = "kebab-case")]
     Square {
         /// Top-left (most negative x and z) corner chunk to include
         top_left: Coord<i64>,
@@ -109,9 +122,7 @@ pub(crate) enum PersistentArea {
         /// Bottom-right (most positive x and z) corner chunk to include
         bottom_right: Coord<i64>,
 
-        /// Blending settings to apply to this area,
-        /// if unset no blending will be applied
-        #[serde(default)]
+        /// Blending settings to apply to this area, if unset no blending will be applied
         blending: Option<Blending>,
     },
 }
@@ -133,6 +144,52 @@ impl PersistentArea {
     }
 }
 
+impl From<PersistentArea> for UnvalidatedPersistentArea {
+    fn from(area: PersistentArea) -> Self {
+        match area {
+            PersistentArea::Square {
+                top_left,
+                bottom_right,
+                blending,
+            } => Self::Square {
+                top_left,
+                bottom_right,
+                blending,
+            },
+        }
+    }
+}
+
+impl TryFrom<UnvalidatedPersistentArea> for PersistentArea {
+    type Error = Error;
+
+    #[culpa::throws]
+    fn try_from(area: UnvalidatedPersistentArea) -> Self {
+        match area {
+            UnvalidatedPersistentArea::Square {
+                top_left,
+                bottom_right,
+                blending,
+            } => {
+                ensure!(
+                    top_left.x <= bottom_right.x,
+                    "top-left is to the right of bottom-right"
+                );
+                ensure!(
+                    top_left.z <= bottom_right.z,
+                    "top-left is below the bottom-right"
+                );
+                ensure!(top_left != bottom_right, "area is empty");
+                Self::Square {
+                    top_left,
+                    bottom_right,
+                    blending,
+                }
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -140,6 +197,8 @@ mod tests {
         PersistentArea, Players, Relocate,
     };
     use eyre::Error;
+    use indoc::indoc;
+    use pretty_assertions::assert_eq;
     use std::str::FromStr;
 
     #[test]
@@ -157,14 +216,12 @@ mod tests {
         );
 
         assert_eq!(
-            Config::from_str(
-                "
+            Config::from_str(indoc! { "
                 [players.out-of-bounds.persist-chunks]
                 size = 3
                 # empty inline table to use builtin blending
                 blending = {}
-                ",
-            )?,
+            " })?,
             Config {
                 players: Players {
                     out_of_bounds: Some(OutOfBounds::PersistChunks {
@@ -178,12 +235,10 @@ mod tests {
         );
 
         assert_eq!(
-            Config::from_str(
-                "
+            Config::from_str(indoc! { "
                 [players.out-of-bounds.persist-chunks]
                 size = 3
-                ",
-            )?,
+            " })?,
             Config {
                 players: Players {
                     out_of_bounds: Some(OutOfBounds::PersistChunks {
@@ -197,8 +252,7 @@ mod tests {
         );
 
         assert_eq!(
-            Config::from_str(
-                r#"
+            Config::from_str(indoc! { r#"
                 [players.out-of-bounds.relocate]
                 dimension = "overworld"
                 position = { x = -20.5, y = 70, z = 21.5 }
@@ -214,8 +268,7 @@ mod tests {
                 [[dimension.overworld.persistent]]
                 top-left = { x = 100, z = 100 }
                 bottom-right = { x = 101, z = 101 }
-            "#
-            )?,
+            "# })?,
             Config {
                 players: Players {
                     out_of_bounds: Some(OutOfBounds::Relocate(Relocate {
@@ -246,6 +299,61 @@ mod tests {
                     }
                 ),]),
             }
+        );
+    }
+
+    #[test]
+    #[culpa::throws]
+    fn bad_persistent_area_coordinates() {
+        assert_eq!(
+            Config::from_str(indoc! { r#"
+                [[dimension.overworld.persistent]]
+                top-left = { x = 31, z = 31 }
+                bottom-right = { x = -31, z = -31 }
+            "# })
+            .unwrap_err()
+            .to_string(),
+            indoc! { "
+                TOML parse error at line 1, column 1
+                  |
+                1 | [[dimension.overworld.persistent]]
+                  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                top-left is to the right of bottom-right
+            " },
+        );
+
+        assert_eq!(
+            Config::from_str(indoc! { r#"
+                [[dimension.overworld.persistent]]
+                top-left = { x = -31, z = 31 }
+                bottom-right = { x = 31, z = -31 }
+            "# })
+            .unwrap_err()
+            .to_string(),
+            indoc! { "
+                TOML parse error at line 1, column 1
+                  |
+                1 | [[dimension.overworld.persistent]]
+                  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                top-left is below the bottom-right
+            " },
+        );
+
+        assert_eq!(
+            Config::from_str(indoc! { r#"
+                [[dimension.overworld.persistent]]
+                top-left = { x = 31, z = 31 }
+                bottom-right = { x = 31, z = 31 }
+            "# })
+            .unwrap_err()
+            .to_string(),
+            indoc! { "
+                TOML parse error at line 1, column 1
+                  |
+                1 | [[dimension.overworld.persistent]]
+                  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                area is empty
+            " },
         );
     }
 }
