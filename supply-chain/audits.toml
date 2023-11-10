@@ -393,7 +393,7 @@ end = "2024-09-12"
 
 [[trusted.valuable]]
 criteria = "safe-to-deploy"
-user-id = 10 # Carl Lerche (carllerche)
+user-id = 10
 start = "2022-01-03"
 end = "2024-09-12"
 
