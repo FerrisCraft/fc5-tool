@@ -41,6 +41,10 @@ pub(crate) struct App {
     /// Set a particular world seed
     #[arg(long, value_name = "SEED")]
     set_seed: Option<i64>,
+
+    /// Only verify the config file is correct
+    #[arg(long)]
+    verify_config: bool,
 }
 
 impl App {
@@ -48,9 +52,12 @@ impl App {
     pub(super) fn run(self) {
         let world = World::new(&self.world);
         let mut config = Config::load(&self.world.join("fc5-tool.toml"))?;
+        if self.verify_config {
+            return;
+        }
 
         if let Some(OutOfBounds::PersistChunks { size, blending }) = config.players.out_of_bounds {
-            let radius = size.max(1) / 2;
+            let radius = (size.max(1) / 2).into();
             let offset = Coord {
                 x: radius,
                 z: radius,

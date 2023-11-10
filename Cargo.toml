@@ -17,6 +17,7 @@ flate2 = "1.0.26"
 itertools = "0.11.0"
 rand = "0.8.5"
 serde = { version = "=1.0.171", features = ["derive"] }
+serde_with = "3.4.0"
 toml = { version = "0.7.6", default-features = false, features = ["parse"] }
 tracing = "0.1.37"
 tracing-error = "0.2.0"
@@ -27,6 +28,8 @@ uuid = "1.4.1"
 
 # enforce working minimal-versions
 is-terminal = { version = "0.4.9", optional = true }
+indoc = "2.0.4"
+pretty_assertions = "1.4.0"
 
 [lints.rust]
 absolute-paths-not-starting-with-crate = "warn"
